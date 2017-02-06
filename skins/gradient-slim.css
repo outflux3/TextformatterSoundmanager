@@ -1,0 +1,39 @@
+/**
+Skin: Gradient Slim
+Description: A thinner skin with a gradient
+*/
+
+.sm2-bar-ui.gradient-slim {
+	border-radius: 0;
+	font-size: 13px;
+}
+
+.sm2-bar-ui.gradient-slim .sm2-playlist {
+	display: none;
+}
+
+.sm2-bar-ui.gradient-slim .sm2-inline-duration {
+	display: none;
+}
+
+.sm2-bar-ui.gradient-slim  .sm2-progress .sm2-progress-track {
+    background-color: #3caac8;
+    background-color: rgba(60,170,200,.8);
+    background: -webkit-gradient(linear,0 0,0 100%,from(rgba(44,124,145,.8)),to(rgba(78,183,212,.8)));
+    background: -webkit-linear-gradient(top,rgba(44,124,145,.8),rgba(78,183,212,.8));
+    background: -moz-linear-gradient(top,rgba(44,124,145,.8),rgba(78,183,212,.8));
+    background: -o-linear-gradient(top,rgba(44,124,145,.8),rgba(78,183,212,.8));
+    background: -ms-linear-gradient(top,rgba(44,124,145,.8),rgba(78,183,212,.8));
+    background: linear-gradient(rgba(44,124,145,.8),rgba(78,183,212,.8));
+}
+
+.sm2-bar-ui.gradient-slim .sm2-main-controls,
+.sm2-bar-ui.gradient-slim .sm2-playlist-drawer {
+    background-color: rgba(0,0,0,.6);
+    background: -webkit-gradient(linear,0 0,0 100%,from(rgba(50,50,50,.8)),to(rgba(0,0,0,.8)));
+    background: -webkit-linear-gradient(top,rgba(50,50,50,.7),rgba(0,0,0,.8));
+    background: -moz-linear-gradient(top,rgba(50,50,50,.7),rgba(0,0,0,.8));
+    background: -o-linear-gradient(top,rgba(50,50,50,.7),rgba(0,0,0,.8));
+    background: -ms-linear-gradient(top,rgba(50,50,50,.7),rgba(0,0,0,.8));
+    background: linear-gradient(rgba(50,50,50,.7),rgba(0,0,0,.8));
+}
