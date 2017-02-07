@@ -1001,3 +1001,12 @@
  display: block;
  overflow: hidden;
 }
+
+/* Fix for processwire module */
+.sm2-bar-ui *{
+  box-sizing: padding-box;
+}
+.sm2-bar-ui li a {
+  text-decoration: none;
+  border-bottom: none;
+}
