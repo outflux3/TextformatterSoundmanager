@@ -7,7 +7,7 @@ This module provides most of the free audio player interfaces for Soundmanager2 
 * 360+ spectrum UI
 * mp3 buttons
 * mp3 links
-* Page Player, muxtape-style UI
+* Page Player, muxtape.com-style UI
 * Cassette Player 
 
 The players may be placed anywhere in the content (ck editor or other text field) using the shortcode, for example:
@@ -52,7 +52,7 @@ So far this module was tested with MP3 and AAC (.m4a).
 ###GetID3 Support
 
 When enabled, ID3 tags from every audio file that pass through the Textformatter are read and cached as arrays using WireCache.
-Therefore the first load of a page with new audio files may be slow while the tags are read and stored. The tags are indexed by the filename of the audio, so as long as you don't uplaod multiple files with the same filename, or change the tags, the system will store the metadata permanently. To remove any metadata, you would need to use Soma's Cache Admin module, or clear it from the database.
+Therefore the first load of a page with new audio files may be slow while the tags are read and stored. The tags are indexed by the filename of the audio, so as long as you don't upload multiple files with the same filename, or change the tags, the system will store the metadata permanently. To remove any metadata, you would need to use Soma's Cache Admin module, or clear it from the database.
 
 ###Schema Support
 
@@ -94,7 +94,10 @@ Here is an example:
 
 ```
 
+	//In Header
 	foreach($config->styles as $style) echo "<link rel='stylesheet' type='text/css' href='{$style}' />\n";
+
+	// In Footer
 	foreach($config->scripts as $script) echo "<script type='text/javascript' src='{$script}'></script>\n";
 
 ```
@@ -118,13 +121,17 @@ then anywhere in your templates, you can output any audio file with any player, 
 	$options = [
 		'type' => 'bar-ui',
 		'skin' => 'gradient-fat',
-		//'tag' => 'audio1', // the audio files on the page would need to have this tag. This can also be blank
+		//'tag' => 'audio1', // tag is not required when outputting in API
 		//'bar-ui' => 'playlist-open' //all of the classes to apply to the bar ui.
 	];
 
 	foreach($page->audio as $track) {
 		$content .= $sm2->player($track, $options);
 	}
+
+	// you could also do this:
+	$content .= $sm2->player($page->audio, $options);
+	// this would output all of the audio files in single player.
 
 ```
 
