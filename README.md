@@ -63,3 +63,31 @@ When enabled, some schema tags relating to audio files will be added to the mark
 
 Very basic dropdown that inserts some pre-configured player codes into the editor. Copy the plugin into your CK editor plugins folder, enable and add a button for 'soundmanager'.
 
+
+
+##About Soundmanager2
+
+http://www.schillmania.com/projects/soundmanager2/
+
+###Speak and be heard
+
+####More sound, in more places
+
+Despite being one of the senses, sound has largely been missing from the web due to inconsistent technology support. SoundManager 2 bridges this gap, making it easier to use audio across a growing variety of devices and platforms, both desktop and mobile.
+
+###HTML5 + flash hybrid
+####Complexity, reduced
+
+Supporting HTML5 audio can be tedious in modern browsers, let alone legacy ones. With real-world visitors using browsers ranging from mobile Safari to IE 6 across a wide range of devices, there can be many support cases to consider.
+
+SoundManager 2 gives you a single, powerful API that supports both new and old, using HTML5 audio where supported and optional Flash-based fallback where needed. Ideally when using SoundManager 2, audio "just works."
+
+###The ginsu knife: 12 KB
+####Big features, small footprint
+
+Performance is an important metric, too. SoundManager 2 packs a comprehensive, feature-rich API into as little as 12 KB over the wire when optimized; that's less than 8% of the original, uncompressed file size.
+
+SM2 is self-contained, having no external dependencies, and is compatible with popular JavaScript frameworks.
+
+The source code is BSD-licensed and is provided in fully-commented, non-debug and compiler-optimized "minified" versions appropriate for development and production use.
+

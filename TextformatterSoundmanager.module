@@ -9,6 +9,8 @@
  * Licensed under MPL 2.0
  * https://processwire.com
  *
+ * nibiri.com
+ *
  */
 
 class TextformatterSoundmanager extends Textformatter implements ConfigurableModule {
