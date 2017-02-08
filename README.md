@@ -68,16 +68,23 @@ Very basic dropdown that inserts some pre-configured player codes into the edito
 ###Before you install:
 
 1) You will need a files field that accepts audio files, so set the extensions you want to use, such as mp3, m4a, mp4, wav etc.
+
 2) Also make sure that you enable tags on the files field because the module references the tags for any audio file in the shortcode.
+
 3) Add the files field to your template.
 
 ###Installation and Setup
 
 1) Install the module and adjust your settings from the module configuration screen.
+
 2) Add the TextformatterSoundmanager textformatter to the field where you want to insert audio (e.g. 'body').
+
 3) Optionally install the CK editor plugin to enable quick access to preconfigured shortcodes.
+
 4) Add a shortcode into the textarea field that has the textformatter applied to.
+
 5) You must reference the tag you entered in the audio file's tag field in the shortcode, and that will create a player for that audio file.
+
 5a) To create a playlist, put the same tag in multiple audio files.
 
 ###Output
