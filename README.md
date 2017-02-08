@@ -85,21 +85,19 @@ Very basic dropdown that inserts some pre-configured player codes into the edito
 1) In order for the module to output the necessary styles and scripts, you need to echo the $config->styles and $config->scripts arrays into your site's header.
 Here is an example:
 
-```	foreach($config->styles as $style) echo "<link rel='stylesheet' type='text/css' href='{$style}' />\n";
-	foreach($config->scripts as $script) echo "<script type='text/javascript' src='{$script}'></script>\n";
-```
+```foreach($config->styles as $style) echo "<link rel='stylesheet' type='text/css' href='{$style}' />\n";
+	foreach($config->scripts as $script) echo "<script type='text/javascript' src='{$script}'></script>\n";```
 
 
 ###API Usage
 
 To access the module's ***player*** method directly, you would first init the module in your _init.php file:
 
-``` $sm2 = $modules->get('TextformatterSoundmanager');
+```$sm2 = $modules->get('TextformatterSoundmanager'); ```
 
 then anywhere in your templates, you can output any audio file with any player, in an configuration like this:
 
-```
-	$options = [
+```$options = [
 		'type' => 'bar-ui',
 		'skin' => 'gradient-fat',
 		//'tag' => 'audio1', // the audio files on the page would need to have this tag. This can also be blank
