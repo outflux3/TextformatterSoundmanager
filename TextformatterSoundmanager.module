@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for Proceswire', __FILE__), 
-			'version' 	=> 100,
+			'version' 	=> 101,
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -494,7 +494,8 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 * optional per-page style
 	 */
 	private $styles = [];
-	private $script = '';
+	private $scripts = []; // need to sometimes have multiple scripts added for different players
+	private $scriptsLoc = 'foot'; // assume scripts are loaded in footer (alternate = head)
 	private $useFlash = 0; // some players require flash container
 
 	public function init() {
@@ -743,7 +744,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * @see http://www.schillmania.com/projects/soundmanager2/demo/page-player/
 		 */
 		if($type == 'page-player') {
-			$this->script = $this->sm2Init();
+			$this->scripts['init'] = $this->sm2Init();
 			$pagePlayer = '<ul class="playlist">{{audio}}</ul>';
 			$this->config->styles->add($smUrl . 'page-player/css/page-player.css');
 			$this->config->scripts->add($smUrl . 'page-player/script/page-player.js');
@@ -757,7 +758,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 */
 		if($type == 'mp3-button') {
 			//$this->useFlash = 1;
-			//$this->script = $this->sm2Init();
 			$color = $options['color'] ?: $this->data['barui_color'];
 			if($color) {
 				$this->styles[$options['tag']] = "a.sm2_button.{$options['tag']}:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
@@ -773,7 +773,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 */
 		if($type == 'mp3-links') {
 			//$this->useFlash = 1;
-			$this->script = $this->sm2Init();
+			$this->scripts['init'] = $this->sm2Init();
 			$inlinePlayer = '<ul class="graphic">{{audio}}</ul>';
 			$this->config->styles->add($smUrl . 'play-mp3-links/css/inlineplayer.css');
 			$this->config->scripts->add($smUrl . 'play-mp3-links/script/inlineplayer.js');
@@ -787,7 +787,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 */
 		if($type == '360-player') {
 			$this->useFlash = 1;
-			$this->script = $this->sm2Init();
+			$this->scripts['init'] = $this->sm2Init();
 			$this->config->scripts->add($smUrl . '360-player/script/berniecode-animator.js');
 			$this->config->styles->add($smUrl . '360-player/360player.css');
 			$this->config->scripts->add($smUrl . '360-player/script/360player.js');
@@ -802,7 +802,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 */
 		if($type == '360-vis') {
 			$this->useFlash = 1;
-			$this->script = $this->threeSixtyInit();
+			$this->scripts['three60'] = $this->threeSixtyInit();
 			$this->config->scripts->add($smUrl . '360-player/script/berniecode-animator.js');
 			$this->config->styles->add($smUrl . '360-player/360player.css');
 			$this->config->styles->add($smUrl . '360-player/360player-visualization.css');
@@ -822,7 +822,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			}
 			$this->config->styles->add($smUrl . 'cassette-tape/css/cassette-tape-ui.css');
 			$this->config->scripts->add($smUrl . 'cassette-tape/script/cassette-tape-ui.js');
-			$this->script = str_replace('{{audio}}', $urls[0], $this->cassetteInit());
+			$this->scripts['cassette'] = str_replace('{{audio}}', $urls[0], $this->cassetteInit());
 			return str_replace('{{title}}', $titles[0], $this->cassetteMarkup($options['cassette']));
 		}
 
@@ -842,23 +842,31 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 * @return [type]        [description]
 	 */
 	public function injectCode($event) {
-		$inject = "<!-- Soundmanager Player Styles -->\n<style>" . implode("\n", $this->styles) . "\n</style>";
-		$inject .= $this->script;
-		if(!$inject) return;
+
+		$proceed = false;
+		if(count($this->styles) || count($this->scripts)) $proceed = true;
+		if(!$proceed) return;
+
+		$injectH = count($this->styles) ? "<!-- SM2 Styles -->\n<style>" . implode("\n", $this->styles) . "\n</style>" : '';
+		$injectF = count($this->scripts) ? "<!-- SM2 Scripts -->\n" . implode("\n", $this->scripts) . "\n" : '';
+
 		$page = $event->object;
 		$output = $event->return;
 		// don't add this to the admin pages
 		if ($page->template->flags & Template::flagSystem) return;
 		// don't add this if output isn't html page
 		if (strpos($output, '</html>') === false) return;
+
 		$flashContainer = $this->useFlash ? '<div id="sm2-container"></div>' : '';
 		// Replace
-		$search = array("</head>", "</body>");
+		$search = array("</head>", "</body>", "</body>");
 		$replace = array(
-			$inject ."\n</head>", 
-			$flashContainer . "\n</body>"
+			$injectH ."\n</head>", 
+			$flashContainer . "\n</body>",
+			$injectF . "\n</body>",
 		);
 		$output = str_replace($search, $replace, $output); 
+
 		$event->return = $output;
 	}
 
@@ -1091,12 +1099,16 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		$swfUrl = $this->getLocations()['swf_url'];
 		return "
 		<script type='text/javascript'>
+			var swfUrl = '{$swfUrl}';
+
 			soundManager.setup({
 			  url: '{$swfUrl}',
 			  flashVersion: 9,
 			});
+
 		</script>
 		";
+
 	}
 
 
