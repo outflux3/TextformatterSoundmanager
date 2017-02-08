@@ -8,32 +8,32 @@ CKEDITOR.plugins.add( 'soundmanager',
 
       var tags = [];
       // Bar UI
-      tags[0]=["[smplayer tag=sometag type=bar-ui color=00C8C3]", "Bar UI: Custom Color", "Bar UI Custom Color"];
-      tags[1]=["[smplayer tag=sometag type=bar-ui extra=true color=00C8C3]", "Bar UI: Extra Controls", "Bar UI Extra Controls"];
-      tags[2]=["[smplayer tag=sometag type=bar-ui bar-ui=playlist-open]", "Bar UI: Playlist Open", "Bar UI Playlist Open"];
-      tags[3]=["[smplayer tag=sometag type=bar-ui bar-ui=compact]", "Bar UI: Compact", "Bar UI Compact"];
-      tags[4]=["[smplayer tag=sometag type=bar-ui bar-ui=dark-text]", "Bar UI: Dark Text", "Bar UI Dark Text"];
-      tags[5]=["[smplayer tag=sometag type=bar-ui bar-ui=full-width]", "Bar UI: Full Width", "Bar UI Full Width"];
-      tags[6]=["[smplayer tag=sometag type=bar-ui bar-ui=fixed]", "Bar UI: Fixed", "Bar UI Fixed"];
+      tags[0]=["[smplayer tag=replace type=bar-ui color=00C8C3]", "Bar UI: Custom Color", "Bar UI Custom Color"];
+      tags[1]=["[smplayer tag=replace type=bar-ui extra=true color=00C8C3]", "Bar UI: Extra Controls", "Bar UI Extra Controls"];
+      tags[2]=["[smplayer tag=replace type=bar-ui bar-ui=playlist-open]", "Bar UI: Playlist Open", "Bar UI Playlist Open"];
+      tags[3]=["[smplayer tag=replace type=bar-ui bar-ui=compact]", "Bar UI: Compact", "Bar UI Compact"];
+      tags[4]=["[smplayer tag=replace type=bar-ui bar-ui=dark-text]", "Bar UI: Dark Text", "Bar UI Dark Text"];
+      tags[5]=["[smplayer tag=replace type=bar-ui bar-ui=full-width]", "Bar UI: Full Width", "Bar UI Full Width"];
+      tags[6]=["[smplayer tag=replace type=bar-ui bar-ui=fixed]", "Bar UI: Fixed", "Bar UI Fixed"];
 
-      tags[7]=["[smplayer tag=sometag type=mp3-links]", "Basic Links", "Basic Links"];
+      tags[7]=["[smplayer tag=replace type=mp3-links]", "Basic Links", "Basic Links"];
 
-      tags[8]=["[smplayer tag=sometag type=page-player]", "Page Player", "Page Player"];
+      tags[8]=["[smplayer tag=replace type=page-player]", "Page Player", "Page Player"];
 
       //MP3 button
-      tags[9]=["[smplayer tag=sometag type=mp3-button]", "MP3 Button", "MP3 Button"];
-      tags[10]=["[smplayer tag=sometag type=mp3-button color=00C8C3]", "MP3 Button (custom color)", "MP3 Button (custom color)"];
+      tags[9]=["[smplayer tag=replace type=mp3-button]", "MP3 Button", "MP3 Button"];
+      tags[10]=["[smplayer tag=replace type=mp3-button color=00C8C3]", "MP3 Button (custom color)", "MP3 Button (custom color)"];
 
-      // 360
-      tags[11]=["[smplayer tag=sometag type=360-player]", "360 Player", "360 Player"];
-      tags[12]=["[smplayer tag=sometag type=360-vis]", "360 Visual (large)", "360 Visual (large)"];
+      // 360 (no options)
+      tags[11]=["[smplayer tag=replace type=360-player]", "360 Player", "360 Player"];
+      tags[12]=["[smplayer tag=replace type=360-vis]", "360 Visual (large)", "360 Visual (large)"];
 
       // Cassette
-      tags[13]=["[smplayer tag=sometag type=cassette cassette=ma-r90]", "Cassette: TDK MA-R90", "Cassette: TDK MA-R90"];
-      tags[14]=["[smplayer tag=sometag type=cassette cassette=cutout]", "Cassette: Default", "Cassette: Default"];
-      tags[15]=["[smplayer tag=sometag type=cassette cassette=black-micro_dark]", "Cassette: Black Micro", "Cassette: Black Micro"];
-      tags[16]=["[smplayer tag=sometag type=cassette cassette=blue_color]", "Cassette: Blue", "Cassette: Blue"];
-      tags[17]=["[smplayer tag=sometag type=cassette cassette=green_color]", "Cassette: Green", "Cassette: Green"];
+      tags[13]=["[smplayer tag=replace type=cassette cassette=ma-r90]", "Cassette: TDK MA-R90", "Cassette: TDK MA-R90"];
+      tags[14]=["[smplayer tag=replace type=cassette cassette=cutout]", "Cassette: Default", "Cassette: Default"];
+      tags[15]=["[smplayer tag=replace type=cassette cassette=black-micro_dark]", "Cassette: Black Micro", "Cassette: Black Micro"];
+      tags[16]=["[smplayer tag=replace type=cassette cassette=blue_color]", "Cassette: Blue", "Cassette: Blue"];
+      tags[17]=["[smplayer tag=replace type=cassette cassette=green_color]", "Cassette: Green", "Cassette: Green"];
 
       editor.ui.addRichCombo( 'soundmanager',
          {

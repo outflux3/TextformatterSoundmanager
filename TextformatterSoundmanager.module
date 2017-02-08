@@ -512,6 +512,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		// exit early when possible
 		if(strpos($str, $openSym) === false) return;
 		if(strpos($str, $closeSym) === false) return;
+		// also check for one of the tag words
 
 		// default pattern
     	//$pattern = "/\[(\w+) (.+?)]/";
@@ -638,7 +639,10 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			} else {
 				$wrapOpen = '<li>';
 			}
-			$class = $type == 'mp3-button' ? " class='sm2_button'" : ''; // only the player button gets this class
+			$class = $type == 'mp3-button' ? 'sm2_button ' . $options['tag'] : $options['tag']; // only the player button gets this class
+			$class = " class='$class'";
+			//$class = $type == 'mp3-button' ? " class='sm2_button'" : ''; // only the player button gets this class
+
 			$itemLink = "<a href='{$mp3->url}' title='{$titleAtt}'{$class}>$titleOut</a>";
 
 			$list[] = $wrapOpen . $itemLink . '</li>';
@@ -663,7 +667,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$list = array_slice($list, 0, $limit);
 			$links = array_slice($links, 0, $limit);
 		}
-
 
 		/**
 		 * Supported Player Types (these are the required tags to call the relative player)
@@ -755,7 +758,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			//$this->script = $this->sm2Init();
 			$color = $options['color'] ?: $this->data['barui_color'];
 			if($color) {
-				$this->styles[$options['tag']] = ".sm2_button {background-color: #{$color} !important;}";
+				$this->styles[$options['tag']] = "a.sm2_button.{$options['tag']}:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
 			}
 			$this->config->styles->add($smUrl . 'mp3-player-button/css/mp3-player-button.css');
 			$this->config->scripts->add($smUrl . 'mp3-player-button/script/mp3-player-button.js');
@@ -768,7 +771,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 */
 		if($type == 'mp3-links') {
 			//$this->useFlash = 1;
-			//$this->script = $this->sm2Init();
+			$this->script = $this->sm2Init();
 			$inlinePlayer = '<ul class="graphic">{{audio}}</ul>';
 			$this->config->styles->add($smUrl . 'play-mp3-links/css/inlineplayer.css');
 			$this->config->scripts->add($smUrl . 'play-mp3-links/script/inlineplayer.js');
@@ -792,6 +795,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		/**
 		 * 360 Player Vis
 		 * @see http://www.schillmania.com/projects/soundmanager2/demo/360-player/
+		 * to control the visualizations, the init needs to be configurable
 		 * 
 		 */
 		if($type == '360-vis') {
