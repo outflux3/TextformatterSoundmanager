@@ -42,7 +42,6 @@ When using the shortcode, you can chain the tags using underscore, for exmaple:
 **Player specific tags for Cassette:**
 * 	cassette (options for the cassette player)
 
-
 ##Features
 
 ###Multiple Audio Formats
@@ -63,6 +62,71 @@ When enabled, some schema tags relating to audio files will be added to the mark
 
 Very basic dropdown that inserts some pre-configured player codes into the editor. Copy the plugin into your CK editor plugins folder, enable and add a button for 'soundmanager'.
 
+
+##Instructions
+
+###Before you install:
+
+1) You will need a files field that accepts audio files, so set the extensions you want to use, such as mp3, m4a, mp4, wav etc.
+2) Also make sure that you enable tags on the files field because the module references the tags for any audio file in the shortcode.
+3) Add the files field to your template.
+
+###Installation and Setup
+
+1) Install the module and adjust your settings from the module configuration screen.
+2) Add the TextformatterSoundmanager textformatter to the field where you want to insert audio (e.g. 'body').
+3) Optionally install the CK editor plugin to enable quick access to preconfigured shortcodes.
+4) Add a shortcode into the textarea field that has the textformatter applied to.
+5) You must reference the tag you entered in the audio file's tag field in the shortcode, and that will create a player for that audio file.
+5a) To create a playlist, put the same tag in multiple audio files.
+
+###Output
+
+1) In order for the module to output the necessary styles and scripts, you need to echo the $config->styles and $config->scripts arrays into your site's header.
+Here is an example:
+
+```	foreach($config->styles as $style) echo "<link rel='stylesheet' type='text/css' href='{$style}' />\n";
+	foreach($config->scripts as $script) echo "<script type='text/javascript' src='{$script}'></script>\n";
+```
+
+
+###API Usage
+
+To access the module's ***player*** method directly, you would first init the module in your _init.php file:
+
+``` $sm2 = $modules->get('TextformatterSoundmanager');
+
+then anywhere in your templates, you can output any audio file with any player, in an configuration like this:
+
+```
+	$options = [
+		'type' => 'bar-ui',
+		'skin' => 'gradient-fat',
+		//'tag' => 'audio1', // the audio files on the page would need to have this tag. This can also be blank
+		//'bar-ui' => 'playlist-open' //all of the classes to apply to the bar ui.
+	];
+
+	foreach($page->audio as $track) {
+		$content .= $sm2->player($track, $options);
+	}
+```
+
+###Advanced Features
+
+*  Using other pages for storing music as playlists.
+You can create a field to hold a tag for a ***page** and then refer to that tag in your shortcode.
+The shortcode word would be smplaylist instead of smplayer. The module will search the site for pages with that tag in that field.
+Then it will output all of the audio files in that page's audio field using the player and settings you specify.
+See the module configuration to select the tag field and adjust your shortcode words.
+
+###Caveats
+
+Some player will not work well on the same page as other players.
+- Bar UI and Page Player
+- 360 Player and 360 Visual (large) players
+
+Also note that the cassette player can only occur once on a page. You can have multiple cassettes output, but they will all play the same audio file.
+The file that the cassette player uses is set in the script tag. In the future the setup may be modified to allow for cassette players to have their own audio files.
 
 
 ##About Soundmanager2
