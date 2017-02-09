@@ -1183,7 +1183,8 @@ function delayInit() {
 }
 
 soundManager.setup({
-  url: '../../swf/',
+  //url: '../../swf/',
+  url: swfUrl,
   flashVersion: 9,
   useHighPerformance: true,
   preferFlash: false,

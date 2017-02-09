@@ -497,9 +497,16 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	private $scripts = []; // need to sometimes have multiple scripts added for different players
 	private $scriptsLoc = 'foot'; // assume scripts are loaded in footer (alternate = head)
 	private $useFlash = 0; // some players require flash container
+	private $baseUrl = '';
+    private $basePath = '';
+
 
 	public function init() {
 		$this->addHookAfter('Page::render', $this, 'injectCode');
+
+		// set base paths and urls for scripts
+        $this->basePath = $this->config->path($this->className);
+        $this->baseUrl = $this->config->url($this->className);
 	}
 
 
@@ -757,7 +764,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * @var [type]
 		 */
 		if($type == 'mp3-button') {
-			//$this->useFlash = 1;
 			$color = $options['color'] ?: $this->data['barui_color'];
 			if($color) {
 				$this->styles[$options['tag']] = "a.sm2_button.{$options['tag']}:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
@@ -772,7 +778,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * @see http://www.schillmania.com/projects/soundmanager2/demo/play-mp3-links/
 		 */
 		if($type == 'mp3-links') {
-			//$this->useFlash = 1;
+			$this->useFlash = 1;
 			$this->scripts['init'] = $this->sm2Init();
 			$inlinePlayer = '<ul class="graphic">{{audio}}</ul>';
 			$this->config->styles->add($smUrl . 'play-mp3-links/css/inlineplayer.css');
@@ -907,7 +913,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	}
 
 
-
 	/**
 	 * [barUISingle: Return the markup for a single bar-ui player]
 	 * @param  [array] $options [classes that the player will use for layout and behaviour]
@@ -926,71 +931,10 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 * 
 	 */
 	public function barUISingle($options) {
-		// if underscore separated options were passed to this, replace with space:
-		if(strpos($options['bar-ui'], '_') !== false) {
-			$options['bar-ui'] = str_replace('_', ' ', $options['bar-ui']);
-		}
-
-		return '<div class="sm2-bar-ui ' . $options['bar-ui'] . '">
-		 <div class="bd sm2-main-controls">
-
-		  <div class="sm2-inline-texture"></div>
-		  <div class="sm2-inline-gradient"></div>
-
-		  <div class="sm2-inline-element sm2-button-element">
-		   <div class="sm2-button-bd">
-		    <a href="#play" class="sm2-inline-button play-pause"></a>
-		   </div>
-		  </div>
-
-		  <div class="sm2-inline-element sm2-inline-status">
-
-		   <div class="sm2-playlist">
-		    <div class="sm2-playlist-target">
-		     <noscript><p>JavaScript is required.</p></noscript>
-		    </div>
-		   </div>
-
-		   <div class="sm2-progress">
-		    <div class="sm2-row">
-		    <div class="sm2-inline-time">0:00</div>
-		     <div class="sm2-progress-bd">
-		      <div class="sm2-progress-track">
-		       <div class="sm2-progress-bar"></div>
-		       <div class="sm2-progress-ball"><div class="icon-overlay"></div></div>
-		      </div>
-		     </div>
-		     <div class="sm2-inline-duration">0:00</div>
-		    </div>
-		   </div>
-
-		  </div>
-
-		  <div class="sm2-inline-element sm2-button-element sm2-volume">
-		   <div class="sm2-button-bd">
-		    <span class="sm2-inline-button sm2-volume-control volume-shade"></span>
-		    <a href="#volume" class="sm2-inline-button sm2-volume-control"></a>
-		   </div>
-		  </div>
-
-		 </div>
-
-		 <div class="bd sm2-playlist-drawer sm2-element">
-
-		  <div class="sm2-inline-texture">
-		   <div class="sm2-box-shadow"></div>
-		  </div>
-
-		  <div class="sm2-playlist-wrapper">
-		    <ul class="sm2-playlist-bd">
-		     {{audio}}
-		    </ul>
-		  </div>
-
-		 </div>
-
-		</div>';
-
+		 return wireRenderFile($this->basePath . '/markup/barui-single.php', [
+                'options' => $options,
+            ]
+        );
 	}
 
 	/**
@@ -998,101 +942,28 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 * @see http://www.schillmania.com/projects/soundmanager2/demo/bar-ui/
 	 */
 	public function barUIPlaylist($options) {
-		// if underscore separated options were passed to this, replace with space:
-		if(strpos($options['bar-ui'], '_') !== false) {
-			$options['bar-ui'] = str_replace('_', ' ', $options['bar-ui']);
-		}
-
-		$barUIPlaylist = '
-		<div class="sm2-bar-ui ' . $options['bar-ui'] . '">
-		  <div class="bd sm2-main-controls">
-
-		    <div class="sm2-inline-texture"></div>
-		    <div class="sm2-inline-gradient"></div>
-
-		    <!-- Play Button ========================== -->
-		    <div class="sm2-inline-element sm2-button-element">
-		     <div class="sm2-button-bd">
-		      <a href="#play" class="sm2-inline-button play-pause"></a>
-		     </div>
-		    </div>
-
-		    <!-- Progress ========================== -->
-		    <div class="sm2-inline-element sm2-inline-status">
-
-		     <div class="sm2-playlist">
-		      <div class="sm2-playlist-target">
-		       <noscript><p>JavaScript is required.</p></noscript>
-		      </div>
-		     </div>
-
-		     <div class="sm2-progress">
-		      <div class="sm2-row">
-		      <div class="sm2-inline-time">0:00</div>
-		       <div class="sm2-progress-bd">
-		        <div class="sm2-progress-track">
-		         <div class="sm2-progress-bar"></div>
-		         <div class="sm2-progress-ball"><div class="icon-overlay"></div></div>
-		        </div>
-		       </div>
-		       <div class="sm2-inline-duration">0:00</div>
-		      </div>
-		     </div>
-
-		    </div>
-
-		    <!-- Volume ========================== -->
-		    <div class="sm2-inline-element sm2-button-element sm2-volume">
-		     <div class="sm2-button-bd">
-		      <span class="sm2-inline-button sm2-volume-control volume-shade"></span>
-		      <a href="#volume" class="sm2-inline-button sm2-volume-control"></a>
-		     </div>
-		    </div>
-		';
-
-		if($options['extra'] == true) {
-		$barUIPlaylist .= '
-			  <!-- extra controls -->
-			  <div class="sm2-inline-element sm2-button-element sm2-nav">
-			   <div class="sm2-button-bd">
-			    <a href="#prev" title="Previous" class="sm2-inline-button previous">&lt; previous</a>
-			   </div>
-			  </div>
-
-			  <div class="sm2-inline-element sm2-button-element sm2-nav">
-			   <div class="sm2-button-bd">
-			    <a href="#next" title="Next" class="sm2-inline-button next">&gt; next</a>
-			   </div>
-			  </div>
-
-			  <div class="sm2-inline-element sm2-button-element sm2-menu">
-			   <div class="sm2-button-bd">
-			     <a href="#menu" class="sm2-inline-button menu">menu</a>
-			   </div>
-			  </div>';
-		}
-
-		$barUIPlaylist .= '</div> <!-- end main controls -->
-
-		 <div class="bd sm2-playlist-drawer sm2-element">
-
-		    <div class="sm2-inline-texture">
-		     <div class="sm2-box-shadow"></div>
-		    </div>
-
-		    <div class="sm2-playlist-wrapper">
-		      <ul itemscope itemtype="http://schema.org/MusicPlaylist" class="sm2-playlist-bd">
-		        {{audio}}
-		      </ul>
-		    </div><!-- /playlist -->
-
-		 </div><!-- /main-controls-->
-
-		</div>'; //sm2-bar-ui 
-
-		return $barUIPlaylist;
-
+		 return wireRenderFile($this->basePath . '/markup/barui-playlist.php', [
+                'options' => $options,
+            ]
+        );
 	}
+
+	/**
+	 * [cassetteMarkup description]
+	 * @return [type] [description]
+	 * 1) tape texture clear cutout ma-r90
+	 * 2) tape texture clear cutout black-micro dark
+	 * 3) tape texture clear cutout
+	 * 4) tape texture clear (blue color)
+	 * 5) tape texture clear (black-micro dark)
+	 */
+	public function cassetteMarkup($options) {
+		 return wireRenderFile($this->basePath . '/markup/cassette.php', [
+                'options' => $options,
+            ]
+        );
+	}
+
 
 	public function sm2Init() {
 
@@ -1105,13 +976,20 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			  url: '{$swfUrl}',
 			  flashVersion: 9,
 			});
-
+			console.log(soundManager.setup);
 		</script>
 		";
 
 	}
 
 
+	/**
+	 * [cassetteInit description]
+	 * @return [type] [description]
+	 */
+	public function cassetteInit() {
+		return '<script>var $sound = "{{audio}}";</script>';
+	}
 
 	/**
 	 * [threeSixtyInit description]
@@ -1162,6 +1040,8 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		  soundManager.useHTML5Audio = true;
 		}
 
+		console.log(soundManager.setup);
+
 		</script>";
 
 	}
@@ -1199,9 +1079,11 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 
 
 	/**
-	 * If GetID3 is enabled, this returns formatted title for Bar-UI
-	 * @param  [type] $file_info [description]
-	 * @return [type]            [description]
+	 * If GetID3 is enabled, this returns formatted title
+	 * Format defaults to Bar UI; if not Bar UI, it just returns the
+	 * artist and title
+	 * @param  [array] $file_info [File Info is the Array that Get ID3 pulls from the audio file]
+	 * @return [string]  [Formatted Title]
 	 */
 	private function getFormattedTitle($file_info, $type = 'bar-ui') {
 
@@ -1309,105 +1191,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		return count($skinfo) ? $skinfo : null;
 	}
 
-
-
-
-	/**
-	 * [cassetteMarkup description]
-	 * @return [type] [description]
-	 * 1) tape texture clear cutout ma-r90
-	 * 2) tape texture clear cutout black-micro dark
-	 * 3) tape texture clear cutout
-	 * 4) tape texture clear (blue color)
-	 * 5) tape texture clear (black-micro dark)
-	 */
-	public function cassetteMarkup($options) {
-
-		$options = 'tape texture clear ' . $options;
-
-		if(strpos($options, '_') !== false) {
-			$options = str_replace('_', ' ', $options);
-		}
-
-		// the cutout option initiates the mask
-		$reelMask = '';
-		if(strpos($options, 'cutout')) {
-			$reelMask = '
-		    <div class="left reel-mask"></div>
-   			<div class="right reel-mask"></div>';
-		}
-
-		// style="border:none;background-color:transparent"
-		$railMiddle = '
-   		   <div class="rail-middle">
-		    <div class="rail-middle-outline">
-		     <div class="hole-1"></div>
-		     <div class="hole-2"></div>
-		     <div class="hole-3"></div>
-		     <div class="hole-4"></div>
-		     <div class="tape-pad-holder">
-		      <div class="tape-pad"></div>
-		      <div class="tape-pad-line"></div>
-		     </div>
-		    </div>
-		    <div class="screw-bm"></div>
-		   </div>
-		   <div class="screw-tl"></div>
-		   <div class="screw-tr"></div>
-		   <div class="screw-bl"></div>
-		   <div class="screw-br"></div>
-		   <div class="screw-tm"></div>';
-
-		// MA-R90 uses a png for the middle rail..
-		if(strpos($options, 'ma-r90')) {
-			$railMiddle = '
-			<div class="rail-middle">
-	    		<div class="rail-middle-outline"></div>
-	   		</div>';
-	   	}
-
-
-		return <<<OUT
-  <div class="{$options}">
-   <div class="rail-left"></div>
-   <div class="rail-right"></div>
-   	{$railMiddle}
-   	{$reelMask}
-   	<canvas class="connecting-tape"></canvas>
-   <div class="left reel"></div>
-   <div class="left spokes"></div>
-   <div class="right reel"></div>
-   <div class="right spokes"></div>
-   <div class="progress-notches">
-    <div class="n1"></div>
-    <div class="n2"></div>
-    <div class="n3"></div>
-    <div class="n4"></div>
-    <div class="n5"></div>
-    <div class="n6"></div>
-    <div class="n7"></div>
-    <div class="n8"></div>
-    <div class="n9"></div>
-   </div>
-   <div class="label">{{title}}</div>
-   <div class="controls">
-    <div class="bd">
-     <ul>
-      <li><a href="#" title="play/pause" class="play">&#9668;</a></li>
-      <li><a href="#" title="rewind" class="rew">&#171;</a></li>
-      <li><a href="#" title="fast-forward" class="ffwd">&#187;</a></li>
-      <li><a href="#" title="stop" class="stop">&#9632;</a></li>
-     </ul>
-    </div>
-   </div>
-  </div>
-OUT;
-
-	}
-
-	public function cassetteInit() {
-		return '<script>var $sound = "{{audio}}";</script>';
-	}
 
 
 }
