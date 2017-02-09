@@ -1,0 +1,127 @@
+/**
+Skin: One Designs
+Description: based on https://www.onedesigns.com/freebies/custom-mediaelement-js-skin
+*/
+
+
+
+.sm2-bar-ui.onedesigns {
+    font-size: 11px;
+    font-family: inherit;
+}
+
+.sm2-bar-ui.onedesigns .sm2-inline-gradient {
+    background-image: none;
+}
+
+.sm2-bar-ui.onedesigns .sm2-playlist {
+    display: none;
+}
+
+.sm2-bar-ui.onedesigns .sm2-progress-ball {
+    display: none;
+}
+
+.sm2-bar-ui.onedesigns .sm2-main-controls {
+
+}
+
+
+.sm2-bar-ui.onedesigns .sm2-main-controls,
+.sm2-bar-ui.onedesigns .sm2-playlist-drawer {
+    background: #3a3c3d url(onedesigns/background.png);
+    background: -webkit-linear-gradient(#4a4c4d, #2b2d2d);
+    background: -moz-linear-gradient(#4a4c4d, #2b2d2d);
+    background: -o-linear-gradient(#4a4c4d, #2b2d2d);
+    background: -ms-linear-gradient(#4a4c4d, #2b2d2d);
+    background: linear-gradient(#4a4c4d, #2b2d2d);
+    border-radius: 3px;
+}
+
+.sm2-bar-ui.onedesigns .sm2-progress-bd {
+    width: 115%;
+    margin-left: -25px;
+    margin-top: 1px;
+}
+
+.sm2-bar-ui.onedesigns .sm2-progress-bar {
+    background: #feea36;
+    background-image: -webkit-linear-gradient(-45deg, #feea36 25%, #fdd500 25%, #fdd500 50%, #feea36 50%, #feea36 75%, #fdd500 75%, #fdd500);
+    background-image: -moz-linear-gradient(-45deg, #feea36 25%, #fdd500 25%, #fdd500 50%, #feea36 50%, #feea36 75%, #fdd500 75%, #fdd500);
+    background-image: -o-linear-gradient(-45deg, #feea36 25%, #fdd500 25%, #fdd500 50%, #feea36 50%, #feea36 75%, #fdd500 75%, #fdd500);
+    background-image: -ms-linear-gradient(-45deg, #feea36 25%, #fdd500 25%, #fdd500 50%, #feea36 50%, #feea36 75%, #fdd500 75%, #fdd500);
+    background-image: linear-gradient(-45deg, #feea36 25%, #fdd500 25%, #fdd500 50%, #feea36 50%, #feea36 75%, #fdd500 75%, #fdd500);
+    -moz-background-size: 6px 6px;
+    background-size: 6px 6px;
+    -webkit-background-size: 6px 5px;
+    z-index: 1;
+    border-radius: 0;
+
+}
+
+    .sm2-bar-ui.onedesigns .sm2-progress-track {
+        padding: 1px;
+        background: #262929;
+        border-bottom: #3d3f40 1px solid;
+        box-shadow: inset 1px 1px rgba(0, 0, 0, .4);
+        border-radius: 0;
+    }
+
+    .sm2-bar-ui.onedesigns .sm2-inline-time {
+        text-indent: -9999px;
+    }
+
+    .sm2-bar-ui.onedesigns .sm2-inline-duration {
+        display: none;
+    }
+
+.sm2-bar-ui.onedesigns .sm2-volume-control {
+
+}
+
+.sm2-bar-ui.onedesigns .volume-shade {
+
+}
+
+
+
+@-webkit-keyframes buffering-stripes {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 30px 0;
+    }
+}
+@-moz-keyframes buffering-stripes {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 30px 0;
+    }
+}
+@-ms-keyframes buffering-stripes {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 30px 0;
+    }
+}
+@-o-keyframes buffering-stripes {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 30px 0;
+    }
+}
+@keyframes buffering-stripes {
+    from {
+        background-position: 0 0;
+    }
+    to {
+        background-position: 30px 0;
+    }
+}
