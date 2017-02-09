@@ -1,0 +1,149 @@
+/**
+Skin: Osvaldas
+Description: Based on CSS Created by Osvaldas Valutis: www.osvaldas.info
+*/
+
+
+.sm2-bar-ui.osvaldas {
+	font-size: 13px;
+	font-family: inherit;
+	border-radius: 0;
+	color: #fff;
+	text-shadow: 1px 1px 0 #000;
+	border: 1px solid #222;
+	position: relative;
+	z-index: 1;
+	-webkit-box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .15 ), 0 0 1.25em rgba( 0, 0, 0, .5 ); /* 20 */
+	-moz-box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .15 ), 0 0 1.25em rgba( 0, 0, 0, .5 ); /* 20 */
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .15 ), 0 0 1.25em rgba( 0, 0, 0, .5 ); /* 20 */
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+}
+
+.sm2-bar-ui.osvaldas .sm2-inline-gradient {
+ 	background-image: none;
+}
+
+.sm2-bar-ui.osvaldas .sm2-playlist {
+	display: none;
+}
+
+.sm2-bar-ui.osvaldas .sm2-progress-ball {
+	display: none;
+}
+
+.sm2-bar-ui.osvaldas .sm2-main-controls {
+
+}
+
+
+.sm2-bar-ui.osvaldas .sm2-main-controls,
+.sm2-bar-ui.osvaldas .sm2-playlist-drawer {
+	background: #333;
+	background: -webkit-gradient( linear, left top, left bottom, from( #444 ), to( #222 ) );
+	background: -webkit-linear-gradient( top, #444, #222 );
+	background: -moz-linear-gradient( top, #444, #222 );
+	background: -ms-radial-gradient( top, #444, #222 );
+	background: -o-linear-gradient( top, #444, #222 );
+	background: linear-gradient( top, #444, #222 );
+	-webkit-box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .15 ), 0 0 1.25em rgba( 0, 0, 0, .5 ); /* 20 */
+	-moz-box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .15 ), 0 0 1.25em rgba( 0, 0, 0, .5 ); /* 20 */
+	box-shadow: inset 0 1px 0 rgba( 255, 255, 255, .15 ), 0 0 1.25em rgba( 0, 0, 0, .5 ); /* 20 */
+	-webkit-border-radius: 2px;
+	-moz-border-radius: 2px;
+	border-radius: 2px;
+}
+
+
+.sm2-bar-ui.osvaldas .sm2-progress-bar {
+	background: #007fd1;
+	background: -webkit-gradient( linear, left top, right top, from( #007fd1 ), to( #c600ff ) );
+	background: -webkit-linear-gradient( left, #007fd1, #c600ff );
+	background: -moz-linear-gradient( left, #007fd1, #c600ff );
+	background: -ms-radial-gradient( left, #007fd1, #c600ff );
+	background: -o-linear-gradient( left, #007fd1, #c600ff );
+	background: linear-gradient( left, #007fd1, #c600ff );
+	z-index: 2;
+	border-radius: 4px;
+	height:1em;
+}
+
+	.sm2-bar-ui.osvaldas .sm2-row {
+	    top: 1px;
+	}
+
+
+	.sm2-bar-ui.osvaldas .sm2-progress-track {
+	    height: 1em;
+	    background-color: #333;
+	    cursor: pointer;
+	    z-index: 1;
+	}
+
+	.sm2-bar-ui.osvaldas .sm2-inline-time {
+		font-size: 120%;
+		font-weight: bold;
+	}
+
+	.sm2-bar-ui.osvaldas .sm2-inline-duration {
+		font-size: 120%;
+		font-weight: bold;
+	}
+
+
+
+.sm2-bar-ui.osvaldas .sm2-inline-button.play-pause,
+.sm2-bar-ui.osvaldas .sm2-inline-button.sm2-volume-control {
+
+}
+
+
+.sm2-bar-ui.osvaldas .sm2-inline-button.play-pause:hover,
+.sm2-bar-ui.osvaldas .sm2-inline-button.play-pause:focus {
+	background-color: #222;
+}
+.sm2-bar-ui.osvaldas .sm2-inline-button.play-pause a {
+	display: block;
+}
+
+
+.sm2-bar-ui.osvaldas .sm2-inline-button.play-pause
+{
+	-webkit-filter: drop-shadow( 1px 1px 0 #000 );
+	-moz-filter: drop-shadow( 1px 1px 0 #000 );
+	-ms-filter: drop-shadow( 1px 1px 0 #000 );
+	-o-filter: drop-shadow( 1px 1px 0 #000 );
+	filter: drop-shadow( 1px 1px 0 #000 );
+}
+.sm2-bar-ui.osvaldas .sm2-progress-track
+{
+	-webkit-border-radius: 4px;
+	-moz-border-radius: 4px;
+	border-radius: 4px;
+}
+.sm2-bar-ui.osvaldas .sm2-progress-track
+{
+	-webkit-box-shadow: -1px -1px 0 rgba( 0, 0, 0, .5 ), 1px 1px 0 rgba( 255, 255, 255, .1 );
+	-moz-box-shadow: -1px -1px 0 rgba( 0, 0, 0, .5 ), 1px 1px 0 rgba( 255, 255, 255, .1 );
+	box-shadow: -1px -1px 0 rgba( 0, 0, 0, .5 ), 1px 1px 0 rgba( 255, 255, 255, .1 );
+}
+
+.sm2-bar-ui.osvaldas .sm2-progress-bar
+{
+	-webkit-box-shadow: inset 0 0 5px rgba( 255, 255, 255, .5 );
+	-moz-box-shadow: inset 0 0 5px rgba( 255, 255, 255, .5 );
+	box-shadow: inset 0 0 5px rgba( 255, 255, 255, .5 );
+}
+
+.sm2-bar-ui.osvaldas *,
+.sm2-bar-ui.osvaldas *:before,
+.sm2-bar-ui.osvaldas *:after
+{
+	-webkit-transition: color .25s ease, background-color .25s ease, opacity .5s ease;
+	-moz-transition: color .25s ease, background-color .25s ease, opacity .5s ease;
+	-ms-transition: color .25s ease, background-color .25s ease, opacity .5s ease;
+	-o-transition: color .25s ease, background-color .25s ease, opacity .5s ease;
+	transition: color .25s ease, background-color .25s ease, opacity .5s ease;
+}
+
