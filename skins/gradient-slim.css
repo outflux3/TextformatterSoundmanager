@@ -8,6 +8,10 @@ Description: A thinner skin with a gradient
 	font-size: 13px;
 }
 
+.sm2-bar-ui.gradient-slim .sm2-inline-gradient {
+    background-image: none;
+}
+
 .sm2-bar-ui.gradient-slim .sm2-playlist {
 	display: none;
 }

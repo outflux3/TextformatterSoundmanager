@@ -11,6 +11,10 @@ Description: A thicker skin with a gradient
     /*max-width: 100%;*/
 }
 
+.sm2-bar-ui.gradient-fat .sm2-inline-gradient {
+    background-image: none;
+}
+
 /**
  * needed to fix possible border-box issues
  */
