@@ -1164,7 +1164,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		$dir = new DirectoryIterator($skins_dir);
 		$skins = [];
 		foreach($dir as $fileinfo) {
-		    if(!$fileinfo->isDot()) {
+		    if(!$fileinfo->isDot() && $fileinfo->isFile()) {
 		        $skins[$fileinfo->getBasename()] = self::getFileCommentBlock($fileinfo->getPathname());
 		    }
 		}
