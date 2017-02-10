@@ -44,6 +44,18 @@ When using the shortcode, you can chain the tags using underscore, for exmaple:
 
 ##Features
 
+###Bar UI Skins
+
+The Bar UI player can be used with the default skin, and set to any color. You can use the graident or flat to further configure the player.
+In addition, the module comes with 4 skins that can be used, which make the player more flexible and possibly fit better into certain websites.
+
+*  Gradient Fat (gradient-fat) - this is a taller/fatter version of the Bar-UI, and uses a graident for the background, and a css3 inset for the progress track.
+*  Gradient Slim (gradient-slim) - same as above but smaller player with no text.
+*  Osvaldas (osvaldas) - Based on https://osvaldas.info/examples/audio-player-responsive-and-touch-friendly/
+*  One Designs (onedesigns) - Based on http://demo.onedesigns.com/mediaelement/index.html
+
+Beyond that, you can create unlimited skins by copying the skins folder to your templates directory and adding more files there. See one of the other skins for how to setup the heading so that the module can read the name of the skin.
+
 ###Multiple Audio Formats
 
 SM2 supports many formats, and those can be enabled/disabled in the module config if you want to prevent any from being loaded.
