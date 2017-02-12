@@ -6,14 +6,18 @@ Description: based on https://www.onedesigns.com/freebies/custom-mediaelement-js
 
 
 .sm2-bar-ui.onedesigns {
-    font-size: 11px;
+    font-size: 13px;
     font-family: inherit;
+    max-width: 35em;
 }
 
 .sm2-bar-ui.onedesigns .sm2-inline-gradient {
     background-image: none;
 }
-
+/*
+    One designs can support visible playlists
+    and the titles work pretty well but are small
+ */
 .sm2-bar-ui.onedesigns .sm2-playlist {
     display: none;
 }
@@ -27,6 +31,7 @@ Description: based on https://www.onedesigns.com/freebies/custom-mediaelement-js
 }
 
 
+
 .sm2-bar-ui.onedesigns .sm2-main-controls,
 .sm2-bar-ui.onedesigns .sm2-playlist-drawer {
     background: #3a3c3d url(onedesigns/background.png);
@@ -38,8 +43,48 @@ Description: based on https://www.onedesigns.com/freebies/custom-mediaelement-js
     border-radius: 3px;
 }
 
+.sm2-bar-ui.onedesigns .sm2-playlist-drawer {
+    width: 95%;
+    margin: auto;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.sm2-bar-ui.onedesigns .sm2-playlist-wrapper {
+    background-color: #4A4B4D;
+    padding: 0;
+}
+
+.sm2-bar-ui.onedesigns .sm2-playlist-bd {
+  -webkit-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  -khtml-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  -moz-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  -o-box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.sm2-bar-ui.onedesigns .sm2-playlist-bd li {
+    padding: 0;
+    border-top: 1px solid #38393B;
+    border-bottom: 1px solid #535456;
+}
+
+.sm2-bar-ui.onedesigns .sm2-playlist-bd li:first-child {
+  border-top: none;
+}
+
+.sm2-bar-ui.onedesigns .sm2-playlist-bd li:last-child {
+  border-bottom: none;
+}
+
+.sm2-bar-ui.onedesigns .sm2-playlist-bd li a {
+    padding: 10px 15px;
+}
+
+
+
 .sm2-bar-ui.onedesigns .sm2-progress-bd {
-    width: 115%;
+    /*width: 115%;*/
     margin-left: -25px;
     margin-top: 1px;
 }
@@ -75,12 +120,34 @@ Description: based on https://www.onedesigns.com/freebies/custom-mediaelement-js
         display: none;
     }
 
-.sm2-bar-ui.onedesigns .sm2-volume-control {
 
+/* VOLUME BAR
+----------------------------------------------- */
+.sm2-bar-ui.onedesigns .sm2-volume {
+    min-width: 5em;
+}
+
+.sm2-bar-ui.onedesigns .sm2-volume-control {
+    opacity: 1;
+    top: 15px;
+    left: 10%;
+    width: 75%;
+    height: 7px;
+    border-bottom: none;
+    background-image: none;
+    -webkit-border-radius: 1px;
+    -khtml-border-radius: 1px;
+    -moz-border-radius: 1px;
+    -o-border-radius: 1px;
+    border-radius: 1px;
+    background-color: #fcc500;
+    clip: rect(auto,auto,auto, 10.78px);
 }
 
 .sm2-bar-ui.onedesigns .volume-shade {
-
+    background: #262929;
+    box-shadow: inset 1px 1px rgba(0, 0, 0, .4);
+    clip: rect(auto,auto,auto, 10.78px);
 }
 
 

@@ -1,0 +1,52 @@
+/* VOLUME BAR
+----------------------------------------------- */
+.sm2-bar-ui.onedesigns .sm2-volume {
+    min-width: 4.5em;
+}
+
+.sm2-bar-ui.onedesigns .sm2-volume-control {
+    background-image: none;
+    -webkit-border-radius: 1px;
+    -khtml-border-radius: 1px;
+    -moz-border-radius: 1px;
+    -o-border-radius: 1px;
+    border-radius: 1px;
+    -webkit-background-size: 7px 7px;
+    -moz-background-size: 7px 7px;
+    -o-background-size: 7px 7px;
+    background-size: 7px 7px;
+    background-color: #fcc500;
+    background-repeat: repeat-x;
+    background-image: -khtml-gradient(linear, left top, left bottom, from(#fff200), to(#fcc500));
+    background-image: -moz-linear-gradient(#fff200, #fcc500);
+    background-image: -ms-linear-gradient(#fff200, #fcc500);
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #fff200), color-stop(100%, #fcc500));
+    background-image: -webkit-linear-gradient(#fff200, #fcc500);
+    background-image: -o-linear-gradient(#fff200, #fcc500);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff200', endColorstr='#fcc500', GradientType=0);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff200', endColorstr='#fcc500', GradientType=0)";
+    background-image: linear-gradient(#fff200, #fcc500);
+    background-image: -webkit-gradient(linear, 0 0, 100% 100%, color-stop(0.25, rgba(255, 255, 255, 0.3)), color-stop(0.25, transparent), color-stop(0.5, transparent), color-stop(0.5, rgba(255, 255, 255, 0.3)), color-stop(0.75, rgba(255, 255, 255, 0.3)), color-stop(0.75, transparent), to(transparent));
+    background-image: -webkit-linear-gradient(-45deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%, transparent 75%, transparent);
+    background-image: -moz-linear-gradient(-45deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%, transparent 75%, transparent);
+    background-image: -ms-linear-gradient(-45deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%, transparent 75%, transparent);
+    background-image: -o-linear-gradient(-45deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%, transparent 75%, transparent);
+    background-image: linear-gradient(-45deg, rgba(255, 255, 255, 0.3) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.3) 50%, rgba(255, 255, 255, 0.3) 75%, transparent 75%, transparent);
+}
+
+.sm2-bar-ui.onedesigns .sm2-volume-control {
+    opacity: 1;
+    top: 15px;
+    left: 0;
+    width: 35px;
+    height: 7px;
+   /* cursor: pointer;*/
+    border-bottom: none;
+    /*clip: rect(auto,auto,auto, 33.48px);*/
+}
+
+.sm2-bar-ui.onedesigns .volume-shade {
+    background: #262929;
+    box-shadow: inset 1px 1px rgba(0, 0, 0, .4);
+    /*clip: rect(auto,auto,auto, 33.48px);*/
+}
