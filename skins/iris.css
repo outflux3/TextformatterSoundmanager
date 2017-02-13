@@ -1,0 +1,136 @@
+/**
+Skin: Iris
+Description: based on a player seen somehwere...
+*/
+
+
+
+.sm2-bar-ui.iris {
+    font-size: 11px;
+    font-family: inherit;
+    max-width: 35em;
+}
+
+.sm2-bar-ui.iris .sm2-inline-gradient {
+    background-image: none;
+}
+
+.sm2-bar-ui.iris .sm2-playlist {
+    display: none;
+}
+
+.sm2-bar-ui.iris .sm2-progress-ball {
+    display: none;
+}
+
+.sm2-bar-ui.iris .sm2-main-controls {
+
+}
+
+
+.sm2-bar-ui.iris .sm2-main-controls,
+.sm2-bar-ui.iris .sm2-playlist-drawer {
+    background-color: #30393b;
+    border-radius: 2px;
+}
+
+.sm2-bar-ui.iris .sm2-playlist-drawer {
+    width: 95%;
+    margin: auto;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.sm2-bar-ui.iris .sm2-playlist-wrapper {
+    background-color: #30393B;
+    padding: 0;
+}
+
+.sm2-bar-ui.iris .sm2-playlist-bd {
+
+}
+
+.sm2-bar-ui.iris .sm2-playlist-bd li {
+    padding: 0;
+    border-top: 1px solid #38393B;
+    border-bottom: 1px solid #535456;
+}
+
+.sm2-bar-ui.iris .sm2-playlist-bd li:first-child {
+  border-top: none;
+}
+
+.sm2-bar-ui.iris .sm2-playlist-bd li:last-child {
+  border-bottom: none;
+}
+
+.sm2-bar-ui.iris .sm2-playlist-bd li a {
+    padding: 10px 15px;
+}
+
+.sm2-bar-ui.iris .sm2-inline-status {
+    border-left: 1px solid #3b4648;
+    border-right: 1px solid #3b4648;
+}
+
+
+.sm2-bar-ui.iris .sm2-progress-bd {
+    margin-left: -25px;
+    margin-top: 2px;
+}
+
+.sm2-bar-ui.iris .sm2-progress-bar {
+    border-radius: 1px;
+    background: #2db6cf;
+    height: 5px;
+
+}
+
+    .sm2-bar-ui.iris .sm2-progress-track {
+        height: 6px;
+        padding: 1px;
+        border-radius: 1px;
+        background-color: #25292a;
+    }
+
+    .sm2-bar-ui.iris .sm2-inline-time {
+        text-indent: -9999px;
+    }
+
+    .sm2-bar-ui.iris .sm2-inline-duration {
+        display: none;
+    }
+
+
+/* VOLUME BAR
+----------------------------------------------- */
+.sm2-bar-ui.iris .sm2-volume {
+    min-width: 5em;
+}
+
+.sm2-bar-ui.iris .sm2-volume-control {
+    opacity: 1;
+    top: 45%;
+    left: 10%;
+    width: 75%;
+    height: 5px;
+    border-bottom: none;
+    background-image: none;
+    -webkit-border-radius: 1px;
+    -khtml-border-radius: 1px;
+    -moz-border-radius: 1px;
+    -o-border-radius: 1px;
+    border-radius: 1px;
+    background-color: #2db6cf;
+    clip: rect(auto,auto,auto, 9.02px);
+}
+
+.sm2-bar-ui.iris .volume-shade {
+    background: #25292a;;
+    /*box-shadow: inset 1px 1px rgba(0, 0, 0, .4);*/
+    clip: rect(auto,auto,auto, 9.02px);
+}
+
+
+
+

@@ -91,11 +91,22 @@ Description: Based on CSS Created by Osvaldas Valutis: www.osvaldas.info
 		font-weight: bold;
 	}
 
+.sm2-bar-ui.osvaldas.playlist-open .sm2-main-controls {
+	border: none;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
 
 
-.sm2-bar-ui.osvaldas .sm2-inline-button.play-pause,
-.sm2-bar-ui.osvaldas .sm2-inline-button.sm2-volume-control {
+.sm2-bar-ui.osvaldas .sm2-playlist-drawer {
+    margin: auto;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
 
+.sm2-bar-ui.osvaldas .sm2-playlist-wrapper {
+    /*background-color: #30393B;*/
+    padding: 0;
 }
 
 
