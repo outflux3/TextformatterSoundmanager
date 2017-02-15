@@ -11,6 +11,10 @@ Description: based on https://www.onedesigns.com/freebies/custom-mediaelement-js
     max-width: 35em;
 }
 
+.sm2-bar-ui.onedesigns.full-width {
+    max-width:100%;
+}
+
 .sm2-bar-ui.onedesigns .sm2-inline-gradient {
     background-image: none;
 }

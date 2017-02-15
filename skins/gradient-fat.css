@@ -8,7 +8,11 @@ Description: A thicker skin with a gradient
 .sm2-bar-ui.gradient-fat {
     font-family: inherit;
     min-width: 30em;
-    /*max-width: 100%;*/
+    max-width: 100%;
+}
+
+.sm2-bar-ui.gradient-fat.playlist-open {
+	/*max-width: 100%;*/
 }
 
 .sm2-bar-ui.gradient-fat .sm2-inline-gradient {

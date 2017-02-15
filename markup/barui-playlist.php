@@ -60,19 +60,19 @@ if($options['extra'] == true) {
 	  <!-- extra controls -->
 	  <div class="sm2-inline-element sm2-button-element sm2-nav">
 	   <div class="sm2-button-bd">
-	    <a href="#prev" title="Previous" class="sm2-inline-button previous">&lt; previous</a>
+	    <a href="#prev" title="Previous" class="sm2-inline-button previous"></a>
 	   </div>
 	  </div>
 
 	  <div class="sm2-inline-element sm2-button-element sm2-nav">
 	   <div class="sm2-button-bd">
-	    <a href="#next" title="Next" class="sm2-inline-button next">&gt; next</a>
+	    <a href="#next" title="Next" class="sm2-inline-button next"></a>
 	   </div>
 	  </div>
 
 	  <div class="sm2-inline-element sm2-button-element sm2-menu">
 	   <div class="sm2-button-bd">
-	     <a href="#menu" class="sm2-inline-button menu">menu</a>
+	     <a href="#menu" class="sm2-inline-button menu"></a>
 	   </div>
 	  </div>
 
