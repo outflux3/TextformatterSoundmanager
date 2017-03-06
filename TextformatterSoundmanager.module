@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for Proceswire', __FILE__), 
-			'version' 	=> 102,
+			'version' 	=> 103,
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -1071,7 +1071,9 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		require_once( /*NoCompile*/ dirname(__FILE__) . '/getid3/getid3.php');
 		$getID3 = new getID3;
 		$ThisFileInfo = $getID3->analyze($file->filename);
+		if(isset($ThisFileInfo['error'])) return;
 		getid3_lib::CopyTagsToComments($ThisFileInfo);
+		if(empty($ThisFileInfo['comments'])) return;
 		$skipData = ['picture', 'iTunSMPB']; // these fields prevent wirecache from being able to save
 		foreach($skipData as $sd) unset($ThisFileInfo['comments'][$sd]);
 		return $ThisFileInfo['comments'];
