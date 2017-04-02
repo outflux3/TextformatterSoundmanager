@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for Proceswire', __FILE__), 
-			'version' 	=> 104,
+			'version' 	=> 105,
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -39,6 +39,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		'barui_color'		=> '',
 		'barui_size'		=> '',
 		'barui_options'		=> '',
+		'barui_template' 	=> '<span itemprop="byArtist"><b>{artist}</b></span> -  <span itemprop="name">{title}</span> <span itemprop="author">({composer})</span> <span itemprop="inAlbum" class="label">{album}</span></a></li>',
 		'playlist_height'	=> 300,
 		'cassette_options'	=> '',
 		'flash_version'		=>	'8', // default
@@ -244,7 +245,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		$fset->label = 'Bar-UI Settings';
         //$fset->collapsed = Inputfield::collapsedNever;
 
-
 	        // ------------------------------------------------------------------------
 	        // BAR-UI Hex color for default bar-ui background color
 	        // ------------------------------------------------------------------------
@@ -305,7 +305,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	        $fset->add($f);
 	        //$inputfields->add($f);
 
-
 	        // ------------------------------------------------------------------------
 	        // BAR-UI Define select for the default BAR-UI skin
 	        // ------------------------------------------------------------------------
@@ -327,9 +326,16 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	        $f->notes = __('Copy the existing skins folder from the modules and be sure to use the same format at the top of the file for identifying the name of the skin.');
 			$f->columnWidth = 50;
 			$fset->add($f);
-			//$inputfields->add($f); 
 
-
+	        // ------------------------------------------------------------------------
+	        // BAR-UI Title Template
+	        // ------------------------------------------------------------------------
+			$f = wire('modules')->get('InputfieldTextarea'); 
+			$f->attr('name', 'barui_template');
+			$f->attr('value', $data['barui_template']); 
+			$f->label = __('Bar-UI Track Title Template'); 
+			$f->description = __('Use the required tokens for replacement.'); 
+			$fset->add($f);
 
 	        // ------------------------------------------------------------------------
 	        // Custom Skins Folder: allows to move the skins folder
@@ -641,7 +647,9 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 				  	return $this->getId3($mp3);
 				});
 				$id3Title = $this->getFormattedTitle($id3Data, $type);
-				if($id3Title) $titleOut = $id3Title;
+				// skip the ID3 title if any of the placeholders were not replaced.
+				if($id3Title && !strpos($id3Title, '{')) $titleOut = $id3Title;
+				//if($id3Title) $titleOut = $id3Title;
 			}
 
 			if($this->data['use_schema']) {
@@ -1089,70 +1097,30 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 */
 	private function getFormattedTitle($file_info, $type = 'bar-ui') {
 
+		if(null == $file_info) return;
+		if(empty($file_info['title'])) return; // tracks need to have at least the title tag populated
+
 		if($type != 'bar-ui') {
 			$artist = !empty($file_info['artist']) ? $file_info['artist'][0] . ': ' : '';
 			$title = !empty($file_info['title']) ? $file_info['title'][0] : '';
 			return $artist  . $title;
 		}
 
-		// Bar-ui formatting
-		// ------------------------------
-		$ta = [
-			'artist' => [
-				'tagname' 	=> 'artist',
-				'itemprop' 	=> "byArtist",
-				'wrapper'  	=> "<b>|</b>",
-				'separator' => ' - ',
-				'class'		=> '',
-				'prefix'	=> ''
-			],
-			'title' => [
-				'tagname' 	=> 'title',
-				'itemprop' 	=> "name",
-				'wrapper'  	=> "",
-				'separator' => '',
-				'class'		=> '',
-				'prefix'	=> '',
-			],
-			'composer' => [
-				'tagname'	=> 'composer',
-				'itemprop' => "author",
-				'wrapper'  => "(|)",
-				'separator' => '',
-				'class'		=> '',
-				'prefix'	=> '',
-			],
-			'album' => [
-				'tagname'	=> 'album',
-				'itemprop' 	=> "inAlbum",
-				'wrapper'  	=> "",
-				'separator' => '',
-				'class'		=> 'label',
-				'prefix'	=> 'from the album',
-			],
-		];
-
-		//$tags = array('artist', 'title', 'composer','album');
-		//$template = '{' . implode('}{', $tags) . '}';
-		$ma = [];
+		// Allowed Tags
+		$ta = ['title','composer','artist','track','album'];
+		$search = [];
+		$replace = [];
 		foreach($ta as $tag) {
-			//if(!empty($file_info['comments'][$tag['tagname']][0])) {
-			if(!empty($file_info[$tag['tagname']][0])) {
-				$item = '<span';
-				if($tag['itemprop']) $item .= ' itemprop="' . $tag['itemprop'] . '"';
-				if($tag['class']) $item .= ' class="' . $tag['class'] . '"';
-				$item .= '>';
-				if($tag['wrapper']) $item .= explode('|', $tag['wrapper'])[0];
-				$item .= $file_info[$tag['tagname']][0];
-				if($tag['wrapper']) $item .= explode('|', $tag['wrapper'])[1];
-				$item .= '</span>';
-				if($tag['separator']) $item .= $tag['separator'];
-				$ma[] = $item;
+			if(!empty($file_info[$tag][0])) {
+				$search[] = '{' . $tag . '}';
+				$replace[] = $file_info[$tag][0];
 			}
 		}
 
-		return implode(' ', $ma);
-		// return str_replace($search, $replace, $template);
+		if($this->data['barui_template']) {
+			$template = $this->data['barui_template'];
+			return str_replace($search, $replace, $template);
+		}
 
 	}
 

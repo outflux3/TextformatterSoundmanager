@@ -8,7 +8,7 @@ Description: based on a player seen somehwere...
 .sm2-bar-ui.iris {
     font-size: 11px;
     font-family: inherit;
-    max-width: 35em;
+    /*max-width: 35em;*/
 }
 
 .sm2-bar-ui.iris .sm2-inline-gradient {
