@@ -42,9 +42,9 @@ When using the shortcode, you can chain the tags using underscore, for exmaple:
 **Player specific tags for Cassette:**
 * 	cassette (options for the cassette player)
 
-##Features
+## Features
 
-###Bar UI Skins
+### Bar UI Skins
 
 The Bar UI player can be used with the default skin, and set to any color. You can use the graident or flat to further configure the player.
 In addition, the module comes with 4 skins that can be used, which make the player more flexible and possibly fit better into certain websites.
@@ -56,28 +56,28 @@ In addition, the module comes with 4 skins that can be used, which make the play
 
 Beyond that, you can create unlimited skins by copying the skins folder to your templates directory and adding more files there. See one of the other skins for how to setup the heading so that the module can read the name of the skin.
 
-###Multiple Audio Formats
+### Multiple Audio Formats
 
 SM2 supports many formats, and those can be enabled/disabled in the module config if you want to prevent any from being loaded.
 So far this module was tested with MP3 and AAC (.m4a).
 
-###GetID3 Support
+### GetID3 Support
 
 When enabled, ID3 tags from every audio file that pass through the Textformatter are read and cached as arrays using WireCache.
 Therefore the first load of a page with new audio files may be slow while the tags are read and stored. The tags are indexed by the filename of the audio, so as long as you don't upload multiple files with the same filename, or change the tags, the system will store the metadata permanently. To remove any metadata, you would need to use Soma's Cache Admin module, or clear it from the database.
 
-###Schema Support
+### Schema Support
 
 When enabled, some schema tags relating to audio files will be added to the markup.
 
-###CK editor Plugin
+### CK editor Plugin
 
 Very basic dropdown that inserts some pre-configured player codes into the editor. Copy the plugin into your CK editor plugins folder, enable and add a button for 'soundmanager'.
 
 
-##Instructions
+## Instructions
 
-###Before you install:
+### Before you install:
 
 1) You will need a files field that accepts audio files, so set the extensions you want to use, such as mp3, m4a, mp4, wav etc.
 
@@ -85,7 +85,7 @@ Very basic dropdown that inserts some pre-configured player codes into the edito
 
 3) Add the files field to your template.
 
-###Installation and Setup
+### Installation and Setup
 
 1) Install the module and adjust your settings from the module configuration screen.
 
@@ -99,7 +99,7 @@ Very basic dropdown that inserts some pre-configured player codes into the edito
 
 5a) To create a playlist, put the same tag in multiple audio files.
 
-###Output
+### Output
 
 1) In order for the module to output the necessary styles and scripts, you need to echo the $config->styles and $config->scripts arrays into your site's header.
 Here is an example:
@@ -115,7 +115,7 @@ Here is an example:
 ```
 
 
-###API Usage
+### API Usage
 
 To access the module's ***player*** method directly, you would first init the module in your _init.php file:
 
@@ -147,7 +147,7 @@ then anywhere in your templates, you can output any audio file with any player, 
 
 ```
 
-###Advanced Features
+### Advanced Features
 
 *  Using other pages for storing music as playlists.
 You can create a field to hold a tag for a ***page** and then refer to that tag in your shortcode.
@@ -155,7 +155,7 @@ The shortcode word would be smplaylist instead of smplayer. The module will sear
 Then it will output all of the audio files in that page's audio field using the player and settings you specify.
 See the module configuration to select the tag field and adjust your shortcode words.
 
-###Caveats
+### Caveats
 
 Some player will not work well on the same page as other players.
 - Bar UI and Page Player
@@ -165,7 +165,7 @@ Also note that the cassette player can only occur once on a page. You can have m
 The file that the cassette player uses is set in the script tag. In the future the setup may be modified to allow for cassette players to have their own audio files.
 
 
-##About Soundmanager2
+## About Soundmanager2
 
 http://www.schillmania.com/projects/soundmanager2/
 
