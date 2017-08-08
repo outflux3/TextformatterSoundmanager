@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for Proceswire', __FILE__), 
-			'version' 	=> 106,
+			'version' 	=> 108,
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -53,6 +53,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		'assets_folder'		=> '',
 		'swf_folder'		=> '', // on the off chance it needs to be moved
 		'custom_skins'		=> '', // move the skins folder
+		'one_per_page'		=> 0, // use a 1 audio file per page model (uses the page title for the audio title)
 	); 
 
 	/**
@@ -486,6 +487,21 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		$inputfields->add($fset); 
 
 
+        // ------------------------------------------------------------------------
+        // SINGLE FILE PER PAGE MODEL
+        // ------------------------------------------------------------------------
+		$f = wire('modules')->get('InputfieldCheckbox'); 
+		$f->attr('name', 'one_per_page');
+		$f->attr('value', 1); 
+		if($data['one_per_page']) $f->attr('checked', 'checked'); 
+		$f->label = __('Use a 1 file per page model'); 
+		$f->description = __("Selecting this will fall back on the file's page title instead of the filename");
+		//$f->notes = __('This works best when used with ID3 since the schema for title, artist, composer, and album can be included'); 
+		//$f->columnWidth = 50;
+		$f->collapsed = Inputfield::collapsedBlank;
+		$inputfields->add($f); 
+
+
 		// ------------------------------------------------------------------------
 		return $inputfields;
 	}
@@ -538,6 +554,20 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
     	$pattern = '/' . preg_quote($openSym) .  '(\w+) (.+?)' . $closeSym . '/';
     	$callback = "self::processShortCode";
     	$str = preg_replace_callback($pattern, $callback, $str);
+
+
+    	/**
+    	 * Cleanup any divs inside <p> tags:
+    	 */
+    	if(strpos($str, '<p><div') !== false) {
+	    	$sr = array(
+	    		'<p><div' 	=> '<div',
+	    		'</div></p>'=> '</div>'
+	    	);
+			$str = str_replace(array_keys($sr), $sr, $str);
+		}
+
+
     }
 
 	/**
@@ -592,7 +622,14 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 */
 	public function player($files, $options = []) {
 
-		if($files instanceof Pagefiles == false) {
+		/**
+		 * As a textformatter, the module expects the files to come in as Pagefiles (associated with the page object):
+		 * pagefile (single) needs to be converted into WireArray for compatibility
+		 * Also exclude WireArray
+		 * this might be improved by checking instanceof Pagefile (?) though this currently
+		 * seems to work with sending in WireArrays to the module, or single Pagefile...
+		 */
+		if($files instanceof Pagefiles == false && $files instanceof WireArray == false) {
 			$file = $files;
 			$files = new WireArray();
 			$files->add($file);
@@ -641,6 +678,14 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			// default title source and formatting:
 			$titleOut = $mp3->description ?: $mp3->name; // default
 			$titleAtt = $mp3->description ?: $mp3->name; // attribute
+
+			// allow api usage of the module to override which files field to reference for audio...
+			$filesField = !empty($options['files_field']) ? $options['files_field'] : $this->files_field;
+
+			if( $this->one_per_page && count( $mp3->page->{$filesField} ) == 1 ) {
+				$titleOut = $mp3->description ?: $mp3->page->title; // default
+				$titleAtt = $mp3->description ?: $mp3->page->title; // attribute
+			}
 
 			// Cache Version
 			if($this->data['getid3']) {
@@ -851,6 +896,49 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 
 
 	}
+
+	/**
+	 * Method for getting only the assets (css/js) for any player
+	 * mostly useful if you are outputting your own markup for any player
+	 * and just need the assets included on the page
+	 * @todo - include other types of players; for now this only supports the mp3 button
+	 */
+	public function getAssets($type, $options) {
+
+		// File Locations
+		$locations 	= $this->getLocations();
+		$smUrl 		= $locations['sm_url'];
+		$skinsPath 	= $locations['skins_path'];
+		$skinsUrl 	= $locations['skins_url'];
+
+		$this->config->scripts->add($smUrl . 'script/soundmanager2-nodebug-jsmin.js');
+
+		/**
+		 * Small play button
+		 * @var [type]
+		 */
+		if($type == 'mp3-button') {
+			$color = $options['color'] ?: $this->data['barui_color'];
+			if($color) {
+				if(!empty($options['tag'])) {
+					$this->styles[$options['tag']] = "a.sm2_button.{$options['tag']}:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
+				} else {
+					$this->styles['use'] = "a.sm2_button:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
+				}
+			}
+			$this->config->styles->add($smUrl . 'mp3-player-button/css/mp3-player-button.css');
+			$this->config->scripts->add($smUrl . 'mp3-player-button/script/mp3-player-button.js');
+		}
+
+		/**
+		 * FLASH
+		 */
+		if($this->data['flashblock'] && $this->useFlash) {
+			$this->config->styles->add($smUrl . 'flashblock/flashblock.css');
+		}
+
+	}
+
 
 	/**
 	 * [injectCode description]
