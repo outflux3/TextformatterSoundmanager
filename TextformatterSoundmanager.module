@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for Proceswire', __FILE__), 
-			'version' 	=> 108,
+			'version' 	=> 109,
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -517,6 +517,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 */
 	private $styles = [];
 	private $scripts = []; // need to sometimes have multiple scripts added for different players
+	private $headJS	= []; // for any JS code needed to go in the head
 	private $scriptsLoc = 'foot'; // assume scripts are loaded in footer (alternate = head)
 	private $useFlash = 0; // some players require flash container
 	private $baseUrl = '';
@@ -884,6 +885,8 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$this->config->styles->add($smUrl . 'cassette-tape/css/cassette-tape-ui.css');
 			$this->config->scripts->add($smUrl . 'cassette-tape/script/cassette-tape-ui.js');
 			$this->scripts['cassette'] = str_replace('{{audio}}', $urls[0], $this->cassetteInit());
+			$swfUrl = $this->getLocations()['swf_url'];
+			$this->headJS['cassette'] = "var swfUrl = '{$swfUrl}';";
 			return str_replace('{{title}}', $titles[0], $this->cassetteMarkup($options['cassette']));
 		}
 
@@ -953,6 +956,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 
 		$injectH = count($this->styles) ? "<!-- SM2 Styles -->\n<style>" . implode("\n", $this->styles) . "\n</style>" : '';
 		$injectF = count($this->scripts) ? "<!-- SM2 Scripts -->\n" . implode("\n", $this->scripts) . "\n" : '';
+		$injectH .= count($this->headJS) ? "\n<!-- SM2 JS -->\n<script type='text/javascript'>\n" . implode("\n", $this->headJS) . "\n</script>" : '';
 
 		$page = $event->object;
 		$output = $event->return;
@@ -1074,12 +1078,11 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			  url: '{$swfUrl}',
 			  flashVersion: 9,
 			});
-			console.log(soundManager.setup);
+			//console.log(soundManager.setup);
 		</script>
 		";
 
 	}
-
 
 	/**
 	 * [cassetteInit description]

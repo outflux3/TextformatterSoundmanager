@@ -19,6 +19,10 @@
     font-style: normal;
 }
 
+.tape * {
+  box-sizing: content-box;
+}
+
 .tape {
  position: relative;
  display: inline-block;
@@ -831,7 +835,7 @@
  border-right: none;
 }
 
-.tape *{
+/*.tape *{
   box-sizing: padding-box;
 }
-
+*/
