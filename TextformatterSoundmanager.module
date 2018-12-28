@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for Proceswire', __FILE__), 
-			'version' 	=> 109,
+			'version' 	=> 110,
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -878,10 +878,14 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * 
 		 */
 		if($type == 'cassette') {
-			if(!$options['cassette']) $options['cassette'] = '';
-			if($this->cassette_options) {
-				$options['cassette'] .= implode(' ', $this->cassette_options);
+			
+			//if(!$options['cassette']) $options['cassette'] = '';
+			
+			// If no shortcode or api options provided, fallback to module options:
+			if(!$options['cassette'] && $this->cassette_options) {
+				$options['cassette'] = implode(' ', $this->cassette_options);
 			}
+
 			$this->config->styles->add($smUrl . 'cassette-tape/css/cassette-tape-ui.css');
 			$this->config->scripts->add($smUrl . 'cassette-tape/script/cassette-tape-ui.js');
 			$this->scripts['cassette'] = str_replace('{{audio}}', $urls[0], $this->cassetteInit());
