@@ -21,7 +21,7 @@ Here is a more complex tag:
 [smplayer tag=audio1 type=bar-ui color=2288CC]
 
 the tags available on shortcodes are:
-*   tag - *required to find the audio file on the page
+*   tag - \*required to find the audio file on the page
 * 	type (the type of player)
 * 	limit (limit the number of files to load when using a playlist)
 
@@ -101,7 +101,41 @@ Very basic dropdown that inserts some pre-configured player codes into the edito
 
 ### Output
 
-1) In order for the module to output the necessary styles and scripts, you need to echo the $config->styles and $config->scripts arrays into your site's header.
+1) The module needs to be able to provide CSS and JS files to your front end, which each player type relies on.  
+In terms of CSS, each player has a unique CSS file based on the type and skin of the player you are using.
+
+With the latest version, there are 4 ways to get the correct styles and scripts to your front end. Earlier versions of the module required you to echo $config->styles and $config->scripts in your frontend, which the module populated with the dependencies. 
+
+1) Method 1: Use the module's built in methods which return filename arrays, same as $config->scripts or $config->styles. 
+For existing installations, the migration to this method would be changing the call in your \_main.php file.
+
+$sm2->cssFiles
+$sm2->jsFiles
+
+(Note that the variable you create for the module instance is up to you). 
+
+```
+
+	//In Header
+	foreach($sm2->cssFiles as $style) echo "<link rel='stylesheet' type='text/css' href='{$style}' />\n";
+
+	// In Footer
+	foreach($sm2->jsFiles as $script) echo "<script type='text/javascript' src='{$script}'></script>\n";
+
+```
+
+The main reasoning behind having a filename array is that you may already be combining scripts and styles for use by ProCache or AIOM. 
+This allows you to additionally check for count of assets in the $sm2->cssFiles or $sm2->jsFiles and then combine those with your other site assets, allowing those modules to combine the SM2 dependencies into your merged/minified files.
+
+2) Method 2: Automatic mode - the module will attempt to add the scripts and styles to your markup. 
+
+3) Method 3: Manual - you can create your own links to the required assets in your front end, and the module will not attempt to add any. 
+
+_This is not recommended unless you are only using 1 player type and 1 skin across a whole site and are confident that you do not need the site editors to be able to change skins or player types within shortcodes._
+
+4) Method 4: Use ProcessWire $config class, specifically the $config->styles and $config->scripts, and echo those or combine those into your output. See below for how to do that:
+
+you need to echo the $config->styles and $config->scripts arrays into your site's header.
 Here is an example:
 
 ```
@@ -117,7 +151,7 @@ Here is an example:
 
 ### API Usage
 
-To access the module's ***player*** method directly, you would first init the module in your _init.php file:
+To access the module's ***player*** method directly, you would first init the module in your \_init.php file:
 
 ```
 
@@ -150,7 +184,7 @@ then anywhere in your templates, you can output any audio file with any player, 
 ### Advanced Features
 
 *  Using other pages for storing music as playlists.
-You can create a field to hold a tag for a ***page** and then refer to that tag in your shortcode.
+You can create a field to hold a tag for a ***page*** and then refer to that tag in your shortcode.
 The shortcode word would be smplaylist instead of smplayer. The module will search the site for pages with that tag in that field.
 Then it will output all of the audio files in that page's audio field using the player and settings you specify.
 See the module configuration to select the tag field and adjust your shortcode words.
