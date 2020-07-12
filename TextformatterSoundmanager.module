@@ -10,7 +10,7 @@
  * https://processwire.com
  *
  * nibiri.com
- *
+ * *testing 7/11/20 for mods
  */
 
 class TextformatterSoundmanager extends Textformatter implements ConfigurableModule {
@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for Proceswire', __FILE__), 
-			'version' 	=> '1.1.5',
+			'version' 	=> '1.1.6',
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -714,6 +714,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			if($this->data['getid3']) {
 
 				$cache = wire('cache');
+				//$cache->delete($mp3->name . '_data');
 				$id3Data = $cache->get($mp3->name . '_data', $cache::expireNever, function() use($mp3) {
 				  	return $this->getId3($mp3);
 				});
@@ -1251,22 +1252,33 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		// Deal with possible invalid data in any array element
 		foreach($ThisFileInfo['comments'] as $key => $value) {
 
-			// Skip any arrays in ID3 tags:
-			if(is_array($value) || is_array($value[0]) ) {
-				unset($ThisFileInfo['comments'][$key]);
-				continue;
+			// flatten the array to just $key => $value
+			if(is_array($value)) {
+				//$value = $value[0];
+				$ThisFileInfo['comments'][$key] = $value[0];
 			}
+
+			// Skip any arrays in ID3 tags:
+			// if(is_array($value) || is_array($value[0]) ) {
+			// 	unset($ThisFileInfo['comments'][$key]);
+			// 	continue;
+			// }
 			
 			// Only use ASCII encoded values:
-			$encoding = mb_detect_encoding($value[0]);
+			$encoding = mb_detect_encoding($value);
 			if($encoding !== "ASCII") {
 				unset($ThisFileInfo['comments'][$key]);
 			}
+
+			$skipData = ['picture', 'iTunSMPB', 'comment','part_of_a_compilation', 'text']; 
+			foreach($skipData as $sd) unset($ThisFileInfo['comments'][$sd]);
+
 		}
 
-		// Legacy version:
-		// $skipData = ['picture', 'iTunSMPB', 'comment','part_of_a_compilation']; 
-		// foreach($skipData as $sd) unset($ThisFileInfo['comments'][$sd]);
+		// Account for possibility that track index uses 'track_number' ??
+		if(!empty($ThisFileInfo['comments']['track_number'])) {
+			$ThisFileInfo['comments']['track'] = $ThisFileInfo['comments']['track_number'];
+		}
 
 		return $ThisFileInfo['comments'];
 	}
@@ -1281,23 +1293,42 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 */
 	private function getFormattedTitle($file_info, $type = 'bar-ui') {
 
+		bd($file_info);
+
 		if(null == $file_info) return;
 		if(empty($file_info['title'])) return; // tracks need to have at least the title tag populated
 
 		if($type != 'bar-ui') {
-			$artist = !empty($file_info['artist']) ? $file_info['artist'][0] . ': ' : '';
-			$title = !empty($file_info['title']) ? $file_info['title'][0] : '';
+			
+			// updated 7/11/20
+			if(!empty($file_info['artist'])) {
+				$artist = is_array($file_info['artist']) ? $file_info['artist'][0] : $file_info['artist'];
+			}
+			if(!empty($file_info['title'])) {
+				$title = is_array($file_info['title']) ? $file_info['title'][0] : $file_info['title'];
+			}	
+
+			//$artist = !empty($file_info['artist']) ? $file_info['artist'][0] . ': ' : '';
+			//$title = !empty($file_info['title']) ? $file_info['title'][0] : '';	
+
 			return $artist  . $title;
 		}
 
 		// Allowed Tags
-		$ta = ['title','composer','artist','track','album'];
+		$ta = ['title','composer','artist','album','track']; // track_number is transformed above in getID3
 		$search = [];
 		$replace = [];
+
 		foreach($ta as $tag) {
-			if(!empty($file_info[$tag][0])) {
+			if(!empty($file_info[$tag])) {
 				$search[] = '{' . $tag . '}';
-				$replace[] = $file_info[$tag][0];
+
+				// if the tag value is still an array (from old versions)
+				// get the 0  item.
+				if(is_array($file_info[$tag])) {
+					$file_info[$tag] = $file_info[$tag][0];
+				}
+				$replace[] = $file_info[$tag];
 			}
 		}
 
