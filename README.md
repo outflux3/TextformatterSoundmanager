@@ -1,4 +1,4 @@
-# Soundmanager2 Audio for Processwire
+# Soundmanager2 Audio for ProcessWire
 
 This module provides most of the free audio player interfaces for Soundmanager2 by Scott Schiller:
 

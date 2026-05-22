@@ -9,7 +9,7 @@ if(strpos($options, '_') !== false) {
 // the cutout option initiates the mask
 $reelMask = '';
 
-if(strpos($options, 'cutout')) {
+if(strpos($options, 'cutout') !== false) {
 	$reelMask = '
     <div class="left reel-mask"></div>
 		<div class="right reel-mask"></div>';
@@ -37,7 +37,7 @@ $railMiddle = '
    <div class="screw-tm"></div>';
 
 // MA-R90 uses a png for the middle rail..
-if(strpos($options, 'ma-r90')) {
+if(strpos($options, 'ma-r90') !== false) {
 	$railMiddle = '
 	<div class="rail-middle">
 		<div class="rail-middle-outline"></div>
