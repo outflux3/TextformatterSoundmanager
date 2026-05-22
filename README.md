@@ -153,7 +153,7 @@ Here is an example:
 
 ### API Usage
 
-To access the module's `player` method directly, you would first init the module in your `_init.php` file:
+To access the module's `player()` method directly, you would first init the module in your `_init.php` file:
 
 ```php
 
