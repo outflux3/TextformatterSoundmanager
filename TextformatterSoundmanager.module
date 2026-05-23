@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for ProcessWire', __FILE__),
-			'version' 	=> '1.1.7',
+			'version' 	=> '1.1.8',
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -116,7 +116,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->label = __('Open Tag');
 			$f->columnWidth = 50;
 			$fset->add($f);
-			//$inputfields->add($f); 
 
 			// ------------------------------------------------------------------------
 	        // CLOSE SYMBOL
@@ -130,7 +129,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->label = __('Close Tag');
 			$f->columnWidth = 50;
 			$fset->add($f);
-			//$inputfields->add($f); 
 
 			// ------------------------------------------------------------------------
 	        // PLAYER TAG (SHORTCODE WORD)
@@ -145,7 +143,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->description = __('The tag to use to trigger the audio player within the shortcode.'); 
 			$f->columnWidth = 50;
 			$fset->add($f);
-			//$inputfields->add($f); 
 
 			// ------------------------------------------------------------------------
 	        // PLAYLIST TAG (SHORTCODE WORD)
@@ -160,8 +157,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->description = __('The tag to use to trigger a playlist from another page, within the shortcode.'); 
 			$f->columnWidth = 50;
 			$fset->add($f);
-			//$inputfields->add($f); 
-
 
 	        // ------------------------------------------------------------------------
 	        // Field to use for AUDIO
@@ -171,7 +166,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	            $f              = wire('modules')->get('InputfieldSelect');
 	            $f->name        = 'files_field';
 	            $f->label       = __('Audio Files Field', __FILE__);
-
+	            $f->description = __('Select the files field where the audio files are stored.', __FILE__);
 	            foreach ($files_fields as $files_field) {
 	                $f->addOption($files_field->name, self::getFormattedOptionName($files_field));
 	            }
@@ -188,8 +183,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	        }
 	        $f->columnWidth = 50;
 	        $fset->add($f);
-	        //$inputfields->add($f);
-
 
 	        // ------------------------------------------------------------------------
 	        // Field to use for Tag (to reference another page's audio, e.g. for global playlist)
@@ -216,7 +209,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	        }
 	        $f->columnWidth = 50;
 	        $fset->add($f);
-	        //$inputfields->add($f);
 
 
 	        // ------------------------------------------------------------------------
@@ -232,6 +224,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->addOption('bar-ui', 'Bar UI (bar-ui)', ($data['single_default']=='bar-ui')?array('selected'=>'selected'):null);
 			$f->label = __('Default Single Player'); 
 			$f->notes = __('can be overriden per player within shortcode, use the tag in the parenthesis.');
+			$f->columnWidth = 50;
 			$fset->add($f);
 
 	        // ------------------------------------------------------------------------
@@ -245,6 +238,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->addOption('config', '$config class', ($data['assets_ouput']=='config')?array('selected'=>'selected'):null);
 			$f->label = __('Assets Output Method'); 
 			$f->notes = __('Select your output method for player dependencies.');
+			$f->columnWidth = 50;
 			$fset->add($f);
 
 		 $inputfields->add($fset); 
@@ -447,6 +441,37 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		$inputfields->add($f); 
 
 
+        // ------------------------------------------------------------------------
+        // LOAD CK PLUGIN?
+        // ------------------------------------------------------------------------
+		if(wire('modules')->isInstalled('InputfieldCKEditor')) {
+			$f = wire('modules')->get('InputfieldCheckbox');
+			$f->attr('name', 'load_ck_plugin');
+			$f->attr('value', 1);
+			if($data['load_ck_plugin']) $f->attr('checked', 'checked');
+			$f->label = __('Load the CKEditor Plugin?');
+			$f->description = __('Check this box to load the SM2 dropdown which inserts shortcode samples into CKEditor.');
+			$f->columnWidth = 50;
+			$f->collapsed = Inputfield::collapsedBlank;
+			$inputfields->add($f);
+		}
+
+        // ------------------------------------------------------------------------
+        // LOAD TINYMCE PLUGIN?
+        // ------------------------------------------------------------------------
+		if(wire('modules')->isInstalled('InputfieldTinyMCE')) {
+			$f = wire('modules')->get('InputfieldCheckbox');
+			$f->attr('name', 'load_tm_plugin');
+			$f->attr('value', 1);
+			if($data['load_tm_plugin']) $f->attr('checked', 'checked');
+			$f->label = __('Load the TinyMCE Plugin?');
+			$f->description = __('Check this box to load the SM2 dropdown which inserts shortcode samples into TinyMCE. After enabling, add "soundmanager" to the toolbar in each TinyMCE field where you want it.');
+			$f->columnWidth = 50;
+			$f->collapsed = Inputfield::collapsedBlank;
+			$inputfields->add($f);
+		}
+
+
 		// ------------------------------------------------------------------------
         // FLASH OPTIONS FIELDSET
         // ------------------------------------------------------------------------
@@ -542,19 +567,132 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
     private $basePath = '';
 
 
+	/**
+	 * Unregister TinyMCE plugin on module uninstall
+	 */
+	public function ___uninstall() {
+		if(!$this->wire()->modules->isInstalled('InputfieldTinyMCE')) return;
+		$tinymce = $this->wire()->modules->get('InputfieldTinyMCE');
+		$pluginPath = '/site/modules/' . $this->className() . '/tm_plugin/soundmanager.js';
+		$tinymce->removePlugin($pluginPath);
+	}
+
 	public function init() {
 		$this->addHookAfter('Page::render', $this, 'injectCode');
 
-		// set base paths and urls for scripts
-        //$this->basePath  = $this->config->path($this->className);
-        //$this->baseUrl   = $this->config->url($this->className);
-        $this->basePath  = $this->config->paths->TextformatterSoundmanager;
-		$this->baseUrl   = $this->config->urls->TextformatterSoundmanager;
-		
-		// Store file dependencies for players
+		$this->basePath = $this->config->paths->{$this};
+		$this->baseUrl = $this->config->urls->{$this};
+
 		$this->cssFiles = new FilenameArray();
 		$this->jsFiles = new FilenameArray();
 
+	}
+
+
+	/**
+	 * Ready — load editor plugins from the module
+	 */
+	public function ready() {
+
+		if($this->load_ck_plugin && $this->wire()->modules->isInstalled('InputfieldCKEditor')) {
+			$this->addHookAfter('ProcessPageEdit::execute', $this, 'beforeEditProcess');
+			$this->addHookAfter('InputfieldCKEditor::renderReadyHook', $this, 'afterCkeRenderReady');
+		}
+
+		if($this->wire()->modules->isInstalled('InputfieldTinyMCE')) {
+			$tinymce = $this->wire()->modules->get('InputfieldTinyMCE');
+			$pluginPath = '/site/modules/' . $this->className() . '/tm_plugin/soundmanager.js';
+			$data = $this->wire()->modules->getModuleConfigData($tinymce);
+			$extPluginOpts = isset($data['extPluginOpts']) ? $data['extPluginOpts'] : '';
+			$isRegistered = strpos($extPluginOpts, $pluginPath) !== false;
+
+			if($this->load_tm_plugin && !$isRegistered) {
+				$tinymce->addPlugin($pluginPath);
+			} else if(!$this->load_tm_plugin && $isRegistered) {
+				$tinymce->removePlugin($pluginPath);
+			}
+
+			if($this->load_tm_plugin) {
+				$this->addHookBefore('InputfieldTinyMCE::renderReady', $this, 'beforeTmRenderReady');
+			}
+		}
+
+	}
+
+
+	/**
+	 * Before InputfieldTinyMCE::renderReady
+	 * Inject our plugin into extPlugins so TinyMCE loads it for every field
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function beforeTmRenderReady(HookEvent $event) {
+		$inputfield = $event->object;
+		$pluginPath = '/site/modules/' . $this->className() . '/tm_plugin/soundmanager.js';
+		$existing = $inputfield->extPlugins;
+		if(!is_array($existing)) $existing = [];
+		if(!in_array($pluginPath, $existing)) {
+			$existing[] = $pluginPath;
+			$inputfield->set('extPlugins', $existing);
+		}
+	}
+
+	/**
+	 * Before edit Process executes
+	 * ProcessPageEdit
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function beforeEditProcess(HookEvent $event) {
+		$config = $this->wire()->config;
+		$settings['plugin_url'] = $config->urls->{$this} . 'ck_plugin/';
+		$config->js('soundmanager', $settings);
+	}
+
+
+	/**
+	 * After InputfieldCKEditor::renderReadyHook
+	 * Add extra CKEditor plugins
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function afterCkeRenderReady(HookEvent $event) {
+		/** @var InputfieldCKEditor $inputfield */
+		$inputfield = $event->object;
+		$field = $inputfield->hasField;
+
+		if(!$field) return;
+		$config = $this->wire()->config;
+
+		$config_name = "InputfieldCKEditor_{$field->name}";
+		$config_name_matrix = "InputfieldCKEditor_{$field->name}_matrix";
+		$config_name_repeater_context = "InputfieldCKEditor_{$field->name}_in_";
+
+		$js_config = $config->js();
+		foreach($js_config as $key => $value) {
+			if(
+				$key === $config_name ||
+				strpos($key, $config_name_matrix) === 0 ||
+				strpos($key, $config_name_repeater_context) === 0 ||
+				isset($value['extraPlugins']) // ProFields Table
+			) {
+				if(strpos($js_config[$key]['extraPlugins'], 'soundmanager') === false) {
+					$js_config[$key]['extraPlugins'] .= ',soundmanager';
+				}
+				$config->js($key, $js_config[$key]);
+			}
+		}
+
+		// Add assets
+		$info = $this->getModuleInfo();
+		$version = $info['version'];
+		$config->scripts->add($config->urls->{$this} . "ck_soundmanager.js?v={$version}");
+
+		// CKEditor JS settings
+		$settings = $config->js('InputfieldCKEditor');
+		// Modify CKEditor timestamp property for cache busting of plugin files
+		$settings['timestamp'] .= '.' . $version;
+		$config->js('InputfieldCKEditor', $settings);
 	}
 
 
@@ -822,8 +960,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$barUIPlaylist = $this->barUIPlaylist($options);
 
 			// Add Styles
-			//$this->config->styles->add($smUrl . 'bar-ui/css/bar-ui.css');
-			//$this->config->scripts->add($smUrl . 'bar-ui/script/bar-ui.js');
 			$this->cssFiles->add($smUrl . 'bar-ui/css/bar-ui.css');
 			$this->jsFiles->add($smUrl . 'bar-ui/script/bar-ui.js');
 
@@ -917,10 +1053,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * @see http://www.schillmania.com/projects/soundmanager2/demo/cassette-tape/more.html
 		 * 
 		 */
-		if($type == 'cassette') {
-			
-			//if(!$options['cassette']) $options['cassette'] = '';
-			
+		if($type == 'cassette') {			
 			// If no shortcode or api options provided, fallback to module options:
 			if(!$options['cassette'] && $this->cassette_options) {
 				$options['cassette'] = implode(' ', $this->cassette_options);
@@ -1008,6 +1141,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 
 		if(count($this->styles) || count($this->scripts)) $proceed = true;
 		if(!$proceed) return;
+		// -------------------------------------- 
 		$injectH = count($this->styles) ? "<!-- SM2 Styles -->\n<style>" . implode("\n", $this->styles) . "\n</style>" : '';
 		$injectF = count($this->scripts) ? "<!-- SM2 Scripts -->\n" . implode("\n", $this->scripts) . "\n" : '';
 		$injectH .= count($this->headJS) ? "\n<!-- SM2 JS -->\n<script type='text/javascript'>\n" . implode("\n", $this->headJS) . "\n</script>" : '';
@@ -1022,7 +1156,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			foreach($this->jsFiles as $script) $jsFiles .= "<script type='text/javascript' src='{$script}'></script>\n";
 			$injectF = $jsFiles . $injectF;
 		}
-
 
 		$page = $event->object;
 		$output = $event->return;

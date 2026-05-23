@@ -72,7 +72,20 @@ When enabled, some schema tags relating to audio files will be added to the mark
 
 ### CKEditor Plugin
 
-Very basic dropdown that inserts some pre-configured player codes into the editor. Copy the plugin into your CKEditor plugins folder, enable and add a button for 'soundmanager'.
+1. In the module configuration, check **"Load the CKEditor Plugin?"** and save.
+2. For each CKEditor field where you want the SM2 dropdown to appear, go to the field's settings and add `soundmanager` to the **CKEditor Toolbar** field.
+
+The plugin loads directly from the module — it is not necessary to copy any files to the CKEditor plugins folder.
+
+### TinyMCE Plugin
+
+1. In the module configuration, check **"Load the TinyMCE Plugin?"** and save. This registers the plugin with ProcessWire's TinyMCE inputfield module.
+2. Go to the settings of the TinyMCE field where you want the SM2 dropdown (Setup > Fields > your field).
+3. Under the **Plugin** tab (or **Advanced** tab depending on your ProcessWire version), find **External plugins to enable** and check `soundmanager`.
+4. In the **Toolbar** field, add `soundmanager` at the position where you want the button to appear, for example: `bold italic | soundmanager`.
+5. Save the field.
+
+The SM2 dropdown button will now appear in the TinyMCE toolbar for that field.
 
 
 ## Instructions
@@ -91,13 +104,13 @@ Very basic dropdown that inserts some pre-configured player codes into the edito
 
 2) Add the TextformatterSoundmanager textformatter to the field where you want to insert audio (e.g. 'body').
 
-3) Optionally install the CKEditor plugin to enable quick access to preconfigured shortcodes.
+3) Optionally enable the CKEditor or TinyMCE plugin from the module configuration screen, which provides a simple dropdown for insertion of preconfigured shortcode examples.
 
 4) Add a shortcode into the textarea field that has the textformatter applied to.
 
 5) You must reference the tag you entered in the audio file's tag field in the shortcode, and that will create a player for that audio file.
 
-5a) To create a playlist, put the same tag in multiple audio files.
+-  To create a playlist, put the same tag in multiple audio files.
 
 ### Output
 
