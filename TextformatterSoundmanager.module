@@ -18,7 +18,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public static function getModuleInfo() {
 		return array(
 			'title' 	=> __('Soundmanager2 Audio for ProcessWire', __FILE__),
-			'version' 	=> '1.1.8',
+			'version' 	=> '1.2.0',
 			'summary' 	=> __('Use file field to add audio files, use shortcode to insert into RTE.', __FILE__),
 			'author' 	=> 'Macrura',
 			'icon'     	=> 'volume-up',
@@ -55,6 +55,8 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		'custom_skins'		=> '', // move the skins folder
 		'one_per_page'		=> 0, // use a 1 audio file per page model (uses the page title for the audio title)
 		'assets_ouput'		=> 'config', // default to config so that upgrade doesn't break sites.
+		'load_ck_plugin'	=> 0,
+		'load_tm_plugin'	=> 0,
 	); 
 
 	/**
@@ -69,6 +71,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 *
 	 */
 	public function __construct() {
+		parent::__construct();
 		foreach(self::$configDefaults as $key => $value) {
 			$this->set($key, $value); 
 		}
@@ -138,7 +141,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->attr('value', $data['player_tag']); 
 			$f->attr('size', 20); 
 			$f->attr('maxlength', 21);
-			$f->attr('placeholder', '[');
+			$f->attr('placeholder', 'smplayer');
 			$f->label = __('Player Tag');
 			$f->description = __('The tag to use to trigger the audio player within the shortcode.'); 
 			$f->columnWidth = 50;
@@ -152,7 +155,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f->attr('value', $data['playlist_tag']); 
 			$f->attr('size', 20); 
 			$f->attr('maxlength', 21);
-			$f->attr('placeholder', '[');
+			$f->attr('placeholder', 'smplaylist');
 			$f->label = __('Playlist Tag');
 			$f->description = __('The tag to use to trigger a playlist from another page, within the shortcode.'); 
 			$f->columnWidth = 50;
@@ -324,6 +327,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$f = wire('modules')->get('InputfieldSelect'); 
 			$f->attr('name', 'barui_skin');
 			foreach($skins as $skin) {
+				if(empty($skin['title'])) $skin['title'] = $skin['file'];
 				$f->addOption($skin['file'], $skin['title'] . ' (' . $skin['file'] . ')', ($data['barui_skin']==$skin['file'])?array('selected'=>'selected'):null);
 			}
 			$f->label = __('Custom Bar-UI Skin'); 
@@ -439,6 +443,22 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		$f->columnWidth = 50;
 		$f->collapsed = Inputfield::collapsedBlank;
 		$inputfields->add($f); 
+
+        // ------------------------------------------------------------------------
+        // CLEAR ID3 CACHE (an action handled in beforeSaveConfig, never saved)
+        // ------------------------------------------------------------------------
+		$cacheCount = wire('modules')->get(__CLASS__)->getCacheCount();
+		$f = wire('modules')->get('InputfieldCheckbox');
+		$f->attr('name', 'cacheClear');
+		$f->attr('value', 1);
+		$f->label = __('Clear ID3 Tag Cache');
+		$f->label2 = __('Clear the cached ID3 tags when saving');
+		$f->description = sprintf(__('There are currently %d cached ID3 entries.'), $cacheCount);
+		$f->notes = __('Replaced files are re-read automatically; clear the cache after changing the tags of an existing file, or to remove entries for deleted files. Tags are re-read as pages with audio are viewed.')
+			. "\n" . __('From the API: $modules->get(\'TextformatterSoundmanager\')->clearCache();');
+		$f->icon = 'trash-o';
+		$f->collapsed = $cacheCount ? Inputfield::collapsedNo : Inputfield::collapsedYes;
+		$inputfields->add($f);
 
 
         // ------------------------------------------------------------------------
@@ -566,6 +586,8 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	private $baseUrl = '';
     private $basePath = '';
 
+	private $formatPage = null; // page whose field is being formatted (for shortcode lookups)
+
 
 	/**
 	 * Unregister TinyMCE plugin on module uninstall
@@ -579,6 +601,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 
 	public function init() {
 		$this->addHookAfter('Page::render', $this, 'injectCode');
+		$this->addHookBefore('Modules::saveConfig', $this, 'beforeSaveConfig');
 
 		$this->basePath = $this->config->paths->{$this};
 		$this->baseUrl = $this->config->urls->{$this};
@@ -600,16 +623,21 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		}
 
 		if($this->wire()->modules->isInstalled('InputfieldTinyMCE')) {
-			$tinymce = $this->wire()->modules->get('InputfieldTinyMCE');
-			$pluginPath = '/site/modules/' . $this->className() . '/tm_plugin/soundmanager.js';
-			$data = $this->wire()->modules->getModuleConfigData($tinymce);
-			$extPluginOpts = isset($data['extPluginOpts']) ? $data['extPluginOpts'] : '';
-			$isRegistered = strpos($extPluginOpts, $pluginPath) !== false;
+			// keep TinyMCE's plugin registration in sync with our setting (admin requests only,
+			// so front-end requests don't load and compare TinyMCE's config every time)
+			$page = $this->wire()->page;
+			if($page && $page->template == 'admin') {
+				$tinymce = $this->wire()->modules->get('InputfieldTinyMCE');
+				$pluginPath = '/site/modules/' . $this->className() . '/tm_plugin/soundmanager.js';
+				$data = $this->wire()->modules->getModuleConfigData($tinymce);
+				$extPluginOpts = isset($data['extPluginOpts']) ? (string) $data['extPluginOpts'] : '';
+				$isRegistered = strpos($extPluginOpts, $pluginPath) !== false;
 
-			if($this->load_tm_plugin && !$isRegistered) {
-				$tinymce->addPlugin($pluginPath);
-			} else if(!$this->load_tm_plugin && $isRegistered) {
-				$tinymce->removePlugin($pluginPath);
+				if($this->load_tm_plugin && !$isRegistered) {
+					$tinymce->addPlugin($pluginPath);
+				} else if(!$this->load_tm_plugin && $isRegistered) {
+					$tinymce->removePlugin($pluginPath);
+				}
 			}
 
 			if($this->load_tm_plugin) {
@@ -635,6 +663,25 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			$existing[] = $pluginPath;
 			$inputfield->set('extPlugins', $existing);
 		}
+	}
+
+	/**
+	 * Before Modules::saveConfig
+	 * Handle the "clear ID3 cache" checkbox from our config screen; it's an action, not a setting, so it isn't saved.
+	 *
+	 * @param HookEvent $event
+	 */
+	protected function beforeSaveConfig(HookEvent $event) {
+		$class = $event->arguments(0);
+		$data = $event->arguments(1);
+		if(wireClassName($class, false) !== $this->className() || !is_array($data)) return;
+		if(!array_key_exists('cacheClear', $data)) return;
+		if(!empty($data['cacheClear'])) {
+			$count = $this->clearCache();
+			$this->message(sprintf($this->_('Cleared %d cached ID3 entries.'), $count));
+		}
+		unset($data['cacheClear']);
+		$event->arguments(1, $data);
 	}
 
 	/**
@@ -676,8 +723,9 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 				strpos($key, $config_name_repeater_context) === 0 ||
 				isset($value['extraPlugins']) // ProFields Table
 			) {
-				if(strpos($js_config[$key]['extraPlugins'], 'soundmanager') === false) {
-					$js_config[$key]['extraPlugins'] .= ',soundmanager';
+				$extraPlugins = isset($js_config[$key]['extraPlugins']) ? (string) $js_config[$key]['extraPlugins'] : '';
+				if(strpos($extraPlugins, 'soundmanager') === false) {
+					$js_config[$key]['extraPlugins'] = ltrim($extraPlugins . ',soundmanager', ',');
 				}
 				$config->js($key, $js_config[$key]);
 			}
@@ -691,8 +739,11 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		// CKEditor JS settings
 		$settings = $config->js('InputfieldCKEditor');
 		// Modify CKEditor timestamp property for cache busting of plugin files
-		$settings['timestamp'] .= '.' . $version;
-		$config->js('InputfieldCKEditor', $settings);
+		// (once only — this hook runs for every CKEditor field on the page)
+		if(is_array($settings) && isset($settings['timestamp']) && substr($settings['timestamp'], -strlen(".$version")) !== ".$version") {
+			$settings['timestamp'] .= '.' . $version;
+			$config->js('InputfieldCKEditor', $settings);
+		}
 	}
 
 
@@ -713,8 +764,10 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		// default pattern
     	//$pattern = "/\[(\w+) (.+?)]/";
     	// with replacement
-    	$pattern = '/' . preg_quote($openSym) .  '(\w+) (.+?)' . $closeSym . '/';
+    	$pattern = '/' . preg_quote($openSym, '/') .  '(\w+) (.+?)' . preg_quote($closeSym, '/') . '/';
+    	$this->formatPage = $page;
     	$str = preg_replace_callback($pattern, [$this, 'processShortCode'], $str);
+    	$this->formatPage = null;
 
     	/**
     	 * Cleanup any divs inside <p> tags:
@@ -738,36 +791,49 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 * [audio tag=barnes01 type=bar-ui bar-ui=full-width]
 	 */
 	public function processShortCode($matches) {
-		if(!$this->files_field) return;
+		$playerTag = $this->player_tag ?: 'smplayer';
+		$listTag = $this->playlist_tag ?: 'smplaylist';
+		// leave other [word ...] text (and other modules' shortcodes) untouched
+		if($matches[1] !== $playerTag && $matches[1] !== $listTag) return $matches[0];
+		if(!$this->files_field) return '';
 		$ff = $this->files_field;
-		$playerTag = $this->player_tag;
-		$listTag = $this->playlist_tag;
 	    // parse out the arguments
 	    $dat = explode(" ", $matches[2]);
 	    $params = array();
 	    foreach ($dat as $d){
 	    	if(strpos($d, '=') === false) continue; //only process contents of brackets if there is an = sign
-	        list($opt, $val) = explode("=", $d);
+	        list($opt, $val) = explode("=", $d, 2);
 	        $params[$opt] = trim($val, '"');
 	    }
+	    $tag = isset($params['tag']) ? $params['tag'] : '';
+	    if(!strlen($tag)) return '';
+
 	    switch($matches[1]) {
 	        case $playerTag: // for players off page/local audio
-	            $tag = $params['tag'];
-	            $page = wire('page');
-	            if(!$page->$ff) return;
-	            $files = $page->$ff->findTag($tag); // let the field be configurable
-	            return $this->player($files, $params);
+	            // look on the page whose field is being formatted, then on the current page
+	            // (e.g. a shortcode in a repeater item referencing the main page's audio)
+	            foreach([$this->formatPage, $this->wire('page')] as $page) {
+	            	if(!$page instanceof Page) continue;
+	            	$files = $this->getPageFiles($page, $ff);
+	            	if(!$files) continue;
+	            	$tagged = new WireArray();
+	            	foreach($files as $file) {
+	            		if($file instanceof Pagefile && $file->hasTag($tag)) $tagged->add($file);
+	            	}
+	            	if(count($tagged)) return $this->player($tagged, $params);
+	            }
+	            return '';
 	         case $listTag: // for players referenced from other pages
-	         	if(!$this->data['tag_field']) return;
+	         	if(empty($this->data['tag_field'])) return '';
 	         	$tf = $this->data['tag_field'];
-	            $tag = $params['tag'];
-	            $page = wire('pages')->get("{$tf}=$tag");
-	            if(!$page) return; // if we didn't find a matching page, return
-	            $files = $page->$ff; // look for files on this page
-	            if(!count($files)) return; // if page has no files return
+	            $page = $this->wire('pages')->get("$tf=" . $this->wire('sanitizer')->selectorValue($tag));
+	            if(!$page->id) return ''; // if we didn't find a matching page, return
+	            $files = $this->getPageFiles($page, $ff); // look for files on this page
+	            if(!$files || !count($files)) return ''; // if page has no files return
 	            return $this->player($files, $params);
 	    }
 
+	    return '';
 	}
 
 	/**
@@ -782,20 +848,15 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	public function player($files, $options = []) {
 
 		/**
-		 * As a textformatter, the module expects the files to come in as Pagefiles (associated with the page object):
-		 * pagefile (single) needs to be converted into WireArray for compatibility
-		 * Also exclude WireArray
-		 * this might be improved by checking instanceof Pagefile (?) though this currently
-		 * seems to work with sending in WireArrays to the module, or single Pagefile...
+		 * Accepts Pagefiles, any WireArray/array of Pagefile items, or a single Pagefile
+		 * (e.g. from a files field limited to 1 file). An empty single-file field gives
+		 * null, which simply outputs nothing.
 		 */
-		if($files instanceof Pagefiles == false && $files instanceof WireArray == false) {
-			$file = $files;
-			$files = new WireArray();
-			$files->add($file);
-		}
+		if($files instanceof Pagefile) $files = [$files];
+		if(!$files instanceof WireArray && !is_array($files)) return '';
 
 		$files = $this->filterAudio($files);
-		if(!count($files)) return;
+		if(!count($files)) return '';
 		// These are the player defaults unless any item is
 		// overridden in the module config, or the player's shortcode.
 		$defaults = [
@@ -809,7 +870,14 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			'cassette'  => '',
 		];
 
-		$options = array_merge($defaults,$options);
+		$options = array_merge($defaults, (array) $options);
+
+		// values from shortcodes end up in class attributes and inline CSS
+		$options['tag'] 		= $this->cleanClass($options['tag']);
+		$options['skin'] 		= $this->cleanClass($options['skin']);
+		$options['bar-ui'] 		= $this->cleanClass($options['bar-ui'], true);
+		$options['cassette'] 	= $this->cleanClass($options['cassette'], true);
+		$options['color'] 		= $this->cleanColor($options['color']);
 
 		// Bar UI & Page Player support playlists; default to bar-ui for
 		if(count($files) > 1 && $options['type'] !=='page-player') {
@@ -840,7 +908,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			// allow api usage of the module to override which files field to reference for audio...
 			$filesField = !empty($options['files_field']) ? $options['files_field'] : $this->files_field;
 
-			if( $this->one_per_page && count( $mp3->page->{$filesField} ) == 1 ) {
+			if($this->one_per_page && $mp3->page && $this->countPageFiles($mp3->page, $filesField) == 1) {
 				$titleOut = $mp3->description ?: $mp3->page->title; // default
 				$titleAtt = $mp3->description ?: $mp3->page->title; // attribute
 			}
@@ -848,17 +916,14 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			// Cache Version
 			if($this->data['getid3']) {
 
-				$cache = wire('cache');
-				//$cache->delete($mp3->name . '_data');
-				$id3Data = $cache->get($mp3->name . '_data', $cache::expireNever, function() use($mp3) {
-				  	return $this->getId3($mp3);
-				});
-
+				$id3Data = $this->getId3Cached($mp3);
 				$id3Title = $this->getFormattedTitle($id3Data, $type);
 				// skip the ID3 title if any of the placeholders were not replaced.
-				if($id3Title && !strpos($id3Title, '{')) $titleOut = $id3Title;
-				//if($id3Title) $titleOut = $id3Title;
+				if($id3Title && strpos($id3Title, '{') === false) $titleOut = $id3Title;
 			}
+
+			// strip markup and quote-encode (without double-encoding) for the title attribute
+			$titleAtt = htmlspecialchars(strip_tags($titleAtt), ENT_QUOTES, 'UTF-8', false);
 
 			if($this->data['use_schema']) {
 				$wrapOpen = '<li itemprop="track" itemscope itemtype="http://schema.org/MusicRecording">';
@@ -867,7 +932,6 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			}
 			$class = $type == 'mp3-button' ? 'sm2_button ' . $options['tag'] : $options['tag']; // only the player button gets this class
 			$class = " class='$class'";
-			//$class = $type == 'mp3-button' ? " class='sm2_button'" : ''; // only the player button gets this class
 
 			$itemLink = "<a href='{$mp3->url}' title='{$titleAtt}'{$class}>$titleOut</a>";
 
@@ -932,17 +996,17 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 
 			$skin = $options['skin'] ?: $this->data['barui_skin'];
 
-			$color = $options['color'] ?: $this->data['barui_color'];
+			$color = $this->cleanColor(!empty($options['color']) ? $options['color'] : $this->data['barui_color']);
 			if($color) {
 				$style_array[] = ".sm2-bar-ui{$pc} .sm2-main-controls,.sm2-bar-ui{$pc} .sm2-playlist-drawer {background-color: #{$color} !important;}";
 			}
 
 			if($this->data['barui_size']) {
-				$style_array[] = ".sm2-bar-ui{$pc} {font-size: {$this->data['barui_size']}px;}";
+				$style_array[] = ".sm2-bar-ui{$pc} {font-size: " . (int) $this->data['barui_size'] . "px;}";
 			}
 
 			if($this->data['playlist_height']) {
-				$style_array[] = "{$pc} .sm2-playlist-wrapper ul {max-height: {$this->data['playlist_height']}px ;}";
+				$style_array[] = "{$pc} .sm2-playlist-wrapper ul {max-height: " . (int) $this->data['playlist_height'] . "px;}";
 			}
 
 			if(count($style_array)) {
@@ -992,7 +1056,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * @var [type]
 		 */
 		if($type == 'mp3-button') {
-			$color = $options['color'] ?: $this->data['barui_color'];
+			$color = $this->cleanColor(!empty($options['color']) ? $options['color'] : $this->data['barui_color']);
 			if($color) {
 				$this->styles[$options['tag']] = "a.sm2_button.{$options['tag']}:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
 			}
@@ -1078,7 +1142,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 * and just need the assets included on the page
 	 * @todo - include other types of players; for now this only supports the mp3 button
 	 */
-	public function getAssets($type, $options) {
+	public function getAssets($type, $options = []) {
 
 		// File Locations
 		$locations 	= $this->getLocations();
@@ -1093,10 +1157,11 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * @var [type]
 		 */
 		if($type == 'mp3-button') {
-			$color = $options['color'] ?: $this->data['barui_color'];
+			$color = $this->cleanColor(!empty($options['color']) ? $options['color'] : $this->data['barui_color']);
+			$tag = !empty($options['tag']) ? $this->cleanClass($options['tag']) : '';
 			if($color) {
-				if(!empty($options['tag'])) {
-					$this->styles[$options['tag']] = "a.sm2_button.{$options['tag']}:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
+				if($tag) {
+					$this->styles[$tag] = "a.sm2_button.{$tag}:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
 				} else {
 					$this->styles['use'] = "a.sm2_button:not(.sm2_playing):not(.sm2_paused) {background-color: #{$color}}";
 				}
@@ -1109,7 +1174,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		 * FLASH
 		 */
 		if($this->data['flashblock'] && $this->useFlash) {
-			$this->jsFiles->add($smUrl . 'flashblock/flashblock.css');
+			$this->cssFiles->add($smUrl . 'flashblock/flashblock.css');
 		}
 
 		// untested:
@@ -1348,11 +1413,52 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 	 * MPEG-4 (AAC, HE-AAC, H.264) 
 	 */
 	private function filterAudio($files) {
-		$allowed = $this->audio_formats;
+		// copy into a new array so the page's own Pagefiles value is not modified
+		$allowed = is_array($this->audio_formats) ? $this->audio_formats : [];
+		$audio = new WireArray();
 		foreach($files as $file) {
-			if(!in_array($file->ext,$allowed)) $files->remove($file);
+			if($file instanceof Pagefile && in_array(strtolower($file->ext), $allowed)) $audio->add($file);
 		}
-		return $files;
+		return $audio;
+	}
+
+
+	/**
+	 * Get a page's files field value as Pagefiles, whatever the field's output format
+	 *
+	 * A files field limited to 1 file returns a single Pagefile (or null) when output
+	 * formatting is on, and the "string" output format returns markup; this always
+	 * returns a countable/iterable value.
+	 *
+	 * @param Page $page
+	 * @param string $fieldName
+	 * @return WireArray|null Null if the page doesn't have the field
+	 */
+	protected function getPageFiles(Page $page, $fieldName) {
+		if(!$fieldName || !$page->id || !$page->hasField($fieldName)) return null;
+		$value = $page->get($fieldName);
+		if($value instanceof WireArray) return $value;
+		if($value instanceof Pagefile) {
+			$files = new WireArray();
+			return $files->add($value);
+		}
+		if($value === null) return new WireArray();
+		// other output formats (e.g. string): fall back to the raw value
+		$value = $page->getUnformatted($fieldName);
+		return $value instanceof WireArray ? $value : null;
+	}
+
+
+	/**
+	 * Number of files in a page's files field (0 if the page doesn't have the field)
+	 *
+	 * @param Page $page
+	 * @param string $fieldName
+	 * @return int
+	 */
+	protected function countPageFiles(Page $page, $fieldName) {
+		$files = $this->getPageFiles($page, $fieldName);
+		return $files ? $files->count() : 0;
 	}
 
 
@@ -1372,7 +1478,7 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		// Flatten single-element arrays and remove unwanted tag types
 		foreach($ThisFileInfo['comments'] as $key => $value) {
 			if(is_array($value)) {
-				$ThisFileInfo['comments'][$key] = $value[0];
+				$ThisFileInfo['comments'][$key] = count($value) ? reset($value) : '';
 			}
 		}
 
@@ -1385,6 +1491,106 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 		}
 
 		return $ThisFileInfo['comments'];
+	}
+
+
+	/**
+	 * Get the ID3 tags for a file from the cache, reading the file only when needed
+	 *
+	 * Entries are keyed by the file's full path and store the file's modification
+	 * time and size, so a replaced file is re-read automatically.
+	 *
+	 * @param Pagefile $file
+	 * @return array
+	 */
+	protected function getId3Cached(Pagefile $file) {
+		$cache = $this->wire('cache');
+		$filename = $file->filename;
+		if(!is_file($filename)) return [];
+		$key = 'id3_' . md5($filename);
+		$stamp = filemtime($filename) . '-' . filesize($filename);
+		$cached = $cache->getFor($this, $key);
+		if(is_array($cached) && isset($cached['stamp']) && $cached['stamp'] === $stamp) {
+			return is_array($cached['tags']) ? $cached['tags'] : [];
+		}
+		$tags = $this->getId3($file);
+		if(!is_array($tags)) $tags = []; // cache files without tags too, so they aren't re-read on every view
+		$cache->saveFor($this, $key, ['stamp' => $stamp, 'tags' => $tags], WireCache::expireNever);
+		return $tags;
+	}
+
+
+	/**
+	 * Clear the module's cached ID3 tags
+	 *
+	 * Usage: $modules->get('TextformatterSoundmanager')->clearCache();
+	 * Pass a Pagefile to clear only that file's entry.
+	 *
+	 * @param Pagefile|null $file
+	 * @return int Number of cache entries removed
+	 */
+	public function clearCache($file = null) {
+		$cache = $this->wire('cache');
+		if($file instanceof Pagefile) {
+			$key = 'id3_' . md5($file->filename);
+			if($cache->getFor($this, $key) === null) return 0;
+			return $cache->deleteFor($this, $key) ? 1 : 0;
+		}
+		$count = $this->getCacheCount();
+		$cache->deleteFor($this);
+		// entries from versions before 1.2.0 were named "{filename}_data", without a namespace
+		foreach($this->getLegacyCacheNames() as $name) $cache->delete($name);
+		return $count;
+	}
+
+
+	/**
+	 * Number of cached ID3 entries, including entries saved by versions before 1.2.0
+	 *
+	 * @return int
+	 */
+	public function getCacheCount() {
+		$cache = $this->wire('cache');
+		$count = count((array) $cache->getFor($this, '*'));
+		foreach($this->getLegacyCacheNames() as $name) $count += count((array) $cache->get($name));
+		return $count;
+	}
+
+
+	/**
+	 * Wildcard names matching the un-namespaced "{filename}_data" caches of earlier versions
+	 *
+	 * @return array
+	 */
+	protected function getLegacyCacheNames() {
+		$names = [];
+		foreach(self::$configDefaults['audio_formats'] as $ext) $names[] = "*.{$ext}_data";
+		return $names;
+	}
+
+
+	/**
+	 * Reduce a value to characters that are safe in a class attribute and CSS selector
+	 *
+	 * @param string|array $value
+	 * @param bool $allowSpaces Allow multiple space-separated classes
+	 * @return string
+	 */
+	protected function cleanClass($value, $allowSpaces = false) {
+		if(is_array($value)) $value = implode(' ', $value);
+		$value = preg_replace($allowSpaces ? '/[^\w\- ]/' : '/[^\w\-]/', '', (string) $value);
+		return trim(preg_replace('/\s+/', ' ', $value));
+	}
+
+
+	/**
+	 * Reduce a color value to hex digits (without the leading #)
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	protected function cleanColor($value) {
+		return preg_replace('/[^0-9a-fA-F]/', '', (string) $value);
 	}
 
 
@@ -1409,7 +1615,8 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 			if(!empty($file_info['title'])) {
 				$title = is_array($file_info['title']) ? $file_info['title'][0] : $file_info['title'];
 			}
-			return $artist . $title;
+			$title = $artist ? $artist . ' - ' . $title : $title;
+			return htmlspecialchars($title, ENT_QUOTES, 'UTF-8', false);
 		}
 
 		// Allowed Tags
@@ -1426,7 +1633,8 @@ class TextformatterSoundmanager extends Textformatter implements ConfigurableMod
 				if(is_array($file_info[$tag])) {
 					$file_info[$tag] = $file_info[$tag][0];
 				}
-				$replace[] = $file_info[$tag];
+				// tag values are plain text read from the file; the template holds the markup
+				$replace[] = htmlspecialchars((string) $file_info[$tag], ENT_QUOTES, 'UTF-8', false);
 			}
 		}
 

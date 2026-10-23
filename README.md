@@ -64,7 +64,17 @@ So far this module was tested with MP3 and AAC (.m4a).
 ### GetID3 Support
 
 When enabled, ID3 tags from every audio file that pass through the Textformatter are read and cached as arrays using WireCache.
-Therefore the first load of a page with new audio files may be slow while the tags are read and stored. The tags are indexed by the filename of the audio, so as long as you don't upload multiple files with the same filename, or change the tags, the system will store the metadata permanently. To remove any metadata, you would need to use Soma's Cache Admin module, or clear it from the database.
+Therefore the first load of a page with new audio files may be slow while the tags are read and stored. The tags are cached per file (by its full path), and a file that is replaced with a new upload is re-read automatically.
+
+To clear the cached tags (for example after editing the tags of a file that is already uploaded), check **Clear ID3 Tag Cache** in the module configuration and save. The same can be done from the API:
+
+```php
+$sm2 = $modules->get('TextformatterSoundmanager');
+$sm2->clearCache();            // all cached ID3 entries
+$sm2->clearCache($pagefile);   // only one file's entry
+```
+
+Clearing also removes entries saved by versions before 1.2.0, which were named `{filename}_data`.
 
 ### Schema Support
 
